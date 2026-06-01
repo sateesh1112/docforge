@@ -3,7 +3,7 @@
 from pydantic_settings import BaseSettings
 from pydantic import Field
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 import shutil, os
 
 
@@ -14,9 +14,9 @@ class Settings(BaseSettings):
 
     # On Render/Railway /tmp is writable; use env vars to override
     BASE_DIR: Path = Path("/app")
-    UPLOAD_DIR: Path = Field(None)
-    OUTPUT_DIR: Path = Field(None)
-    TEMP_DIR:   Path = Field(None)
+    UPLOAD_DIR: Optional[Path] = Field(None)
+    OUTPUT_DIR: Optional[Path] = Field(None)
+    TEMP_DIR:   Optional[Path] = Field(None)
 
     def model_post_init(self, __context):
         base = Path(os.environ.get("RENDER_VOLUME_PATH", "/tmp/docforge"))
