@@ -960,19 +960,29 @@ body { background:var(--off); color:var(--text); font-family:var(--font-body); m
       <div class="modal-hdr-icon ico-blue"><i class="ti ti-upload"></i></div>
       <div class="modal-hdr-info">
         <div class="modal-title">Upload Files</div>
-        <div class="modal-sub">Add files to your DocForge workspace</div>
+        <div class="modal-sub" id="uploadSub">Add files to your DocForge workspace</div>
       </div>
       <button class="close-btn" onclick="closeModal('upload-modal')"><i class="ti ti-x"></i></button>
     </div>
     <div class="modal-body">
-      <div class="drop-zone"><i class="ti ti-cloud-upload"></i><p>Drop files here or click to browse</p><small>PDF, DOCX, XLSX, PPTX, JPG, PNG, HTML · 200 MB max</small></div>
+      <input type="file" id="uploadFileInput" multiple
+        accept=".pdf,.docx,.xlsx,.pptx,.jpg,.jpeg,.png,.html,.txt"
+        style="display:none" onchange="onUploadFilesSelected(this.files)">
+      <div class="drop-zone" id="uploadDropZone"
+        onclick="document.getElementById('uploadFileInput').click()"
+        ondragover="uploadDragOver(event)" ondragleave="uploadDragLeave(event)" ondrop="uploadDrop(event)">
+        <i class="ti ti-cloud-upload" id="uploadDropIcon"></i>
+        <p id="uploadDropText">Drop files here or click to browse</p>
+        <small id="uploadDropSmall">PDF, DOCX, XLSX, PPTX, JPG, PNG, HTML · 200 MB max</small>
+      </div>
+      <div id="uploadFileList" style="margin-bottom:14px;display:none"></div>
       <div class="form-row"><label class="form-label">Save to folder</label><select class="form-select"><option>Root</option><option>Projects</option><option>Archive</option><option>Shared</option></select></div>
       <div class="check-row"><input type="checkbox" checked> Run OCR automatically on scanned files</div>
       <div class="check-row"><input type="checkbox"> Compress after upload</div>
     </div>
     <div class="modal-ftr">
       <button class="btn btn-ghost" onclick="closeModal('upload-modal')">Cancel</button>
-      <button class="btn btn-accent"><i class="ti ti-upload" style="font-size:14px"></i> Upload Files</button>
+      <button class="btn btn-accent" id="uploadBtn" onclick="doUpload()"><i class="ti ti-upload" style="font-size:14px"></i> Upload Files</button>
     </div>
   </div>
 </div>
@@ -1405,6 +1415,75 @@ document.addEventListener('keydown', function(e) {
     openApiKeyModal();
   }
 });
+
+/* ─── UPLOAD MODAL FILE HANDLING ─── */
+let _uploadFiles = [];
+
+function onUploadFilesSelected(files) {
+  _uploadFiles = Array.from(files);
+  renderUploadFileList();
+}
+
+function uploadDragOver(e) {
+  e.preventDefault();
+  document.getElementById('uploadDropZone').style.borderColor = 'var(--accent)';
+  document.getElementById('uploadDropZone').style.background  = 'var(--accent-light)';
+}
+
+function uploadDragLeave(e) {
+  document.getElementById('uploadDropZone').style.borderColor = '';
+  document.getElementById('uploadDropZone').style.background  = '';
+}
+
+function uploadDrop(e) {
+  e.preventDefault();
+  uploadDragLeave(e);
+  _uploadFiles = Array.from(e.dataTransfer.files);
+  renderUploadFileList();
+}
+
+function renderUploadFileList() {
+  const list = document.getElementById('uploadFileList');
+  const sub  = document.getElementById('uploadSub');
+  if (!_uploadFiles.length) { list.style.display = 'none'; return; }
+  sub.textContent = _uploadFiles.length + ' file' + (_uploadFiles.length > 1 ? 's' : '') + ' selected';
+  list.style.display = 'block';
+  list.innerHTML = _uploadFiles.map((f, i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--off);border:1px solid var(--border);border-radius:var(--r);margin-bottom:6px;font-size:13px;">
+      <i class="ti ti-file" style="color:var(--accent);font-size:16px;flex-shrink:0"></i>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.name}</span>
+      <span style="color:var(--text3);font-size:11px;flex-shrink:0">${(f.size/1024/1024).toFixed(1)} MB</span>
+      <span style="cursor:pointer;color:var(--text3);font-size:14px" onclick="_uploadFiles.splice(${i},1);renderUploadFileList()">✕</span>
+    </div>`).join('');
+  document.getElementById('uploadBtn').textContent = '';
+  document.getElementById('uploadBtn').innerHTML = '<i class="ti ti-upload" style="font-size:14px"></i> Upload ' + _uploadFiles.length + ' File' + (_uploadFiles.length > 1 ? 's' : '');
+}
+
+function doUpload() {
+  if (!_uploadFiles.length) {
+    showToast('Select at least one file first', 'error', 'ti-alert-triangle');
+    return;
+  }
+  if (!API_BASE) {
+    showToast('Connect a backend URL first to upload files', 'error', 'ti-alert-triangle');
+    return;
+  }
+  const btn = document.getElementById('uploadBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader" style="font-size:14px"></i> Uploading…';
+  Promise.all(_uploadFiles.map(f => {
+    const fd = new FormData(); fd.append('file', f);
+    return fetch(API_BASE + '/api/v1/files/upload', {method:'POST', body:fd}).then(r => r.json());
+  })).then(results => {
+    closeModal('upload-modal');
+    _uploadFiles = [];
+    showToast('Uploaded ' + results.length + ' file' + (results.length > 1 ? 's' : '') + ' successfully', 'success', 'ti-check');
+  }).catch(err => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-upload" style="font-size:14px"></i> Retry Upload';
+    showToast('Upload failed: ' + err.message, 'error', 'ti-alert-triangle');
+  });
+}
 
 init();
 updateSidebarIndicator();
