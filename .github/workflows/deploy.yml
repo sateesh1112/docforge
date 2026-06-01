@@ -1,0 +1,80 @@
+name: Deploy DocForge
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  # ── Deploy Frontend to GitHub Pages ─────────────────────────────────────────
+  deploy-frontend:
+    name: Deploy Frontend → GitHub Pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Inject backend URL into frontend
+        run: |
+          BACKEND_URL="${{ secrets.RENDER_BACKEND_URL }}"
+          if [ -n "$BACKEND_URL" ]; then
+            echo "Injecting backend URL: $BACKEND_URL"
+            sed -i "s|localStorage.getItem('docforge_api_url') || '';|'$BACKEND_URL';|g" frontend/index.html
+          else
+            echo "No RENDER_BACKEND_URL secret set — users will configure manually"
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # ── Validate backend on every push ──────────────────────────────────────────
+  validate-backend:
+    name: Validate Backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install fastapi pydantic pydantic-settings uvicorn python-dotenv
+
+      - name: Syntax check
+        run: python -m py_compile app/main.py app/core/config.py app/models/schemas.py
+        
+      - name: Import check
+        run: |
+          cd $GITHUB_WORKSPACE
+          python -c "
+          import sys, os
+          sys.path.insert(0, '.')
+          os.environ['SECRET_KEY'] = 'test'
+          os.environ['APP_ENV'] = 'development'
+          from app.core.config import settings
+          print('Config OK:', settings.APP_ENV)
+          "

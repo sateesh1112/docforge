@@ -1,0 +1,84 @@
+version: "3.9"
+
+# DocForge — Full self-hosted stack
+# Usage:  docker compose up --build
+#
+# Services:
+#   docforge   — FastAPI backend (port 8000)
+#   nginx      — Reverse proxy + serves frontend (port 80 / 443)
+#   redis      — Job queue & caching (optional, for future task queue)
+
+services:
+
+  # ── Main application ────────────────────────────────────────────────────────
+  docforge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: docforge_api
+    restart: unless-stopped
+    environment:
+      - APP_ENV=production
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
+      - MAX_FILE_SIZE_MB=${MAX_FILE_SIZE_MB:-200}
+      - FILE_RETENTION_HOURS=${FILE_RETENTION_HOURS:-24}
+      - WORKERS=${WORKERS:-4}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-["http://localhost","http://localhost:80"]}
+    volumes:
+      - uploads_data:/app/uploads
+      - outputs_data:/app/outputs
+      - temp_data:/app/temp
+      - ./logs:/app/logs
+      - ./frontend:/app/frontend:ro    # serve built frontend
+    ports:
+      - "8000:8000"                    # expose directly (or via nginx below)
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - docforge_net
+
+  # ── Nginx reverse proxy ─────────────────────────────────────────────────────
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: docforge_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro            # mount your certs here
+      - ./frontend:/usr/share/nginx/html:ro      # static frontend
+    depends_on:
+      - docforge
+    networks:
+      - docforge_net
+
+  # ── Redis (optional — for Celery task queue in future) ──────────────────────
+  redis:
+    image: redis:7.2-alpine
+    container_name: docforge_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - docforge_net
+
+volumes:
+  uploads_data:
+  outputs_data:
+  temp_data:
+  redis_data:
+
+networks:
+  docforge_net:
+    driver: bridge

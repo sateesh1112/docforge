@@ -1,0 +1,23 @@
+# DocForge — Cloud deployment requirements
+# Python 3.11 (Render/Railway free tier compatible)
+
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+pydantic==2.10.4
+pydantic-settings==2.7.0
+
+# PDF processing
+PyMuPDF==1.24.14
+pypdf==5.1.0
+reportlab==4.2.5
+Pillow==11.1.0
+pytesseract==0.3.13
+
+# AI
+openai==1.57.0
+
+# Utilities
+aiofiles==24.1.0
+python-dotenv==1.0.1
+httpx==0.28.1

@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: docforge-api
+    runtime: python
+    plan: free
+    region: singapore
+    buildCommand: |
+      apt-get update -qq &&
+      apt-get install -y --no-install-recommends ghostscript tesseract-ocr tesseract-ocr-eng tesseract-ocr-ara poppler-utils fonts-liberation fonts-dejavu &&
+      pip install --upgrade pip &&
+      pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o
+      - key: MAX_FILE_SIZE_MB
+        value: "50"
+      - key: FILE_RETENTION_HOURS
+        value: "2"
+      - key: WORKERS
+        value: "1"
+      - key: STORAGE_BACKEND
+        value: local
+      - key: PYTHONUNBUFFERED
+        value: "1"

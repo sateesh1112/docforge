@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DocForge — PDF & Document Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+:root {
+  --white: #ffffff;
+  --off: #faf9f7;
+  --off2: #f4f2ef;
+  --off3: #ece9e4;
+  --border: #e8e4de;
+  --border2: #d8d3cb;
+  --text: #1a1814;
+  --text2: #6b6760;
+  --text3: #a8a49e;
+  --accent: #e8500a;
+  --accent-light: #fff2ec;
+  --accent-mid: #fde0d0;
+  --accent-dark: #c44208;
+  --blue: #1a6ef5;
+  --blue-light: #eef3ff;
+  --green: #0d9e6e;
+  --green-light: #e8f8f2;
+  --amber: #d97706;
+  --amber-light: #fef3c7;
+  --purple: #7c3aed;
+  --purple-light: #f3eeff;
+  --teal: #0891b2;
+  --teal-light: #e0f7fa;
+  --pink: #db2777;
+  --pink-light: #fce7f3;
+  --r: 8px;
+  --r2: 12px;
+  --r3: 16px;
+  --r4: 20px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.06);
+  --font-display: 'Fraunces', serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { font-size:15px; }
+body { background:var(--off); color:var(--text); font-family:var(--font-body); min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+
+/* ── Layout ── */
+.shell { display:grid; grid-template-columns:256px 1fr; min-height:100vh; }
+
+/* ── Sidebar ── */
+.sidebar {
+  background:var(--white);
+  border-right:1px solid var(--border);
+  display:flex; flex-direction:column;
+  position:sticky; top:0; height:100vh;
+  overflow-y:auto; z-index:20;
+}
+.sidebar::-webkit-scrollbar { width:0; }
+
+.logo { padding:22px 20px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
+.logo-mark { width:32px; height:32px; background:var(--accent); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.logo-mark i { color:#fff; font-size:17px; }
+.logo-name { font-family:var(--font-display); font-size:17px; font-weight:700; color:var(--text); letter-spacing:-0.3px; }
+.logo-name span { color:var(--accent); }
+.logo-ver { font-size:10px; color:var(--text3); letter-spacing:0.06em; text-transform:uppercase; }
+
+.nav-wrap { flex:1; padding:12px 10px; overflow-y:auto; }
+.nav-section { margin-bottom:4px; }
+.nav-section-label { font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--text3); padding:8px 10px 4px; }
+.nav-item {
+  display:flex; align-items:center; gap:9px;
+  padding:8px 10px; border-radius:var(--r);
+  cursor:pointer; color:var(--text2); font-size:13.5px; font-weight:400;
+  transition:all 0.14s; position:relative; margin-bottom:1px;
+}
+.nav-item:hover { background:var(--off); color:var(--text); }
+.nav-item.active { background:var(--accent-light); color:var(--accent); font-weight:500; }
+.nav-item.active .nav-icon { color:var(--accent); }
+.nav-icon { font-size:16px; flex-shrink:0; color:var(--text3); transition:color 0.14s; }
+.nav-item:hover .nav-icon { color:var(--text2); }
+.nav-badge {
+  margin-left:auto; font-size:10px; font-weight:600;
+  padding:2px 7px; border-radius:20px; letter-spacing:0.02em;
+}
+.nb-count { background:var(--off2); color:var(--text2); }
+.nb-new { background:var(--green-light); color:var(--green); }
+.nb-ai { background:var(--pink-light); color:var(--pink); }
+.nb-pro { background:var(--amber-light); color:var(--amber); }
+
+.sidebar-footer { padding:12px 10px 16px; border-top:1px solid var(--border); }
+.user-row { display:flex; align-items:center; gap:10px; padding:10px; border-radius:var(--r2); cursor:pointer; transition:background 0.14s; }
+.user-row:hover { background:var(--off); }
+.avatar { width:34px; height:34px; border-radius:50%; background:var(--accent-mid); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; color:var(--accent-dark); flex-shrink:0; }
+.user-name { font-size:13px; font-weight:500; }
+.user-plan { font-size:11px; color:var(--text3); }
+
+/* ── Main ── */
+.main { display:flex; flex-direction:column; min-height:100vh; background:var(--off); }
+
+.topbar {
+  display:flex; align-items:center; gap:14px;
+  padding:14px 28px; background:var(--white);
+  border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:10;
+  box-shadow:var(--shadow-sm);
+}
+.topbar-crumb { display:flex; align-items:center; gap:6px; flex:1; }
+.crumb-home { color:var(--text3); font-size:13px; cursor:pointer; }
+.crumb-home:hover { color:var(--text2); }
+.crumb-sep { color:var(--text3); font-size:12px; }
+.crumb-cur { font-size:13px; font-weight:500; color:var(--text); }
+
+.search-wrap { position:relative; }
+.search-wrap i { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text3); font-size:15px; pointer-events:none; }
+.search-input {
+  background:var(--off); border:1px solid var(--border);
+  border-radius:var(--r2); padding:8px 14px 8px 36px;
+  font-family:var(--font-body); font-size:13px; color:var(--text);
+  width:240px; outline:none; transition:all 0.15s;
+}
+.search-input:focus { border-color:var(--accent); background:var(--white); box-shadow:0 0 0 3px rgba(232,80,10,0.08); }
+.search-input::placeholder { color:var(--text3); }
+
+.btn { display:inline-flex; align-items:center; gap:7px; padding:8px 16px; border-radius:var(--r2); font-family:var(--font-body); font-size:13px; font-weight:500; cursor:pointer; border:none; transition:all 0.15s; white-space:nowrap; }
+.btn-ghost { background:transparent; color:var(--text2); border:1px solid var(--border); }
+.btn-ghost:hover { background:var(--off); border-color:var(--border2); color:var(--text); }
+.btn-accent { background:var(--accent); color:#fff; box-shadow:0 2px 8px rgba(232,80,10,0.25); }
+.btn-accent:hover { background:var(--accent-dark); box-shadow:0 4px 12px rgba(232,80,10,0.3); transform:translateY(-1px); }
+.btn-accent:active { transform:translateY(0); }
+.btn-sm { padding:6px 12px; font-size:12px; }
+
+/* ── Content ── */
+.content { flex:1; padding:28px; max-width:1280px; }
+
+/* ── Hero upload ── */
+.upload-hero {
+  background:var(--white); border:2px dashed var(--border2);
+  border-radius:var(--r4); padding:40px;
+  text-align:center; cursor:pointer; transition:all 0.2s;
+  margin-bottom:28px; position:relative; overflow:hidden;
+}
+.upload-hero::before {
+  content:''; position:absolute; inset:0; opacity:0;
+  background:radial-gradient(ellipse at 50% 0%, rgba(232,80,10,0.06) 0%, transparent 70%);
+  transition:opacity 0.2s;
+}
+.upload-hero:hover { border-color:var(--accent); }
+.upload-hero:hover::before { opacity:1; }
+.upload-hero-icon {
+  width:56px; height:56px; background:var(--accent-light);
+  border-radius:var(--r3); display:flex; align-items:center; justify-content:center;
+  margin:0 auto 16px; transition:transform 0.2s;
+}
+.upload-hero:hover .upload-hero-icon { transform:scale(1.05); }
+.upload-hero-icon i { font-size:26px; color:var(--accent); }
+.upload-hero h2 { font-family:var(--font-display); font-size:20px; font-weight:600; margin-bottom:6px; color:var(--text); }
+.upload-hero p { font-size:13px; color:var(--text2); margin-bottom:18px; }
+.format-pills { display:flex; gap:6px; justify-content:center; flex-wrap:wrap; }
+.fpill { font-size:11px; font-weight:500; padding:3px 10px; border-radius:20px; background:var(--off2); color:var(--text2); border:1px solid var(--border); }
+
+/* ── Stats ── */
+.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:28px; }
+.stat-card { background:var(--white); border:1px solid var(--border); border-radius:var(--r3); padding:18px 20px; box-shadow:var(--shadow-sm); }
+.stat-icon { width:36px; height:36px; border-radius:var(--r); display:flex; align-items:center; justify-content:center; font-size:17px; margin-bottom:12px; }
+.stat-label { font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text3); margin-bottom:6px; }
+.stat-num { font-family:var(--font-display); font-size:28px; font-weight:700; color:var(--text); line-height:1; margin-bottom:6px; }
+.stat-sub { font-size:12px; color:var(--text2); }
+.stat-delta { font-weight:500; }
+.delta-up { color:var(--green); }
+.delta-down { color:var(--accent); }
+.prog { height:3px; background:var(--off2); border-radius:2px; margin-top:10px; overflow:hidden; }
+.prog-fill { height:100%; border-radius:2px; }
+
+/* ── Section headers ── */
+.section-hdr { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+.section-title { font-family:var(--font-display); font-size:17px; font-weight:600; color:var(--text); }
+.section-pill { font-size:11px; font-weight:600; padding:2px 8px; border-radius:20px; background:var(--off2); color:var(--text3); }
+.section-link { margin-left:auto; font-size:13px; color:var(--accent); cursor:pointer; font-weight:500; }
+.section-link:hover { text-decoration:underline; }
+
+/* ── AI strip ── */
+.ai-strip {
+  background:linear-gradient(135deg, #fff9f7 0%, #fef2ff 100%);
+  border:1px solid #fde4d0; border-radius:var(--r3);
+  padding:20px 24px; margin-bottom:28px;
+  display:flex; align-items:center; gap:20px; flex-wrap:wrap;
+}
+.ai-strip-label { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.ai-pill { font-size:10px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; background:var(--pink-light); color:var(--pink); padding:3px 9px; border-radius:20px; }
+.ai-strip-title { font-family:var(--font-display); font-size:15px; font-weight:600; color:var(--text); }
+.ai-chips { display:flex; gap:8px; flex-wrap:wrap; flex:1; }
+.ai-chip {
+  display:inline-flex; align-items:center; gap:6px;
+  background:var(--white); border:1px solid var(--border);
+  border-radius:20px; padding:7px 14px; font-size:12px; font-weight:500;
+  color:var(--text2); cursor:pointer; transition:all 0.15s;
+  box-shadow:var(--shadow-sm);
+}
+.ai-chip i { font-size:14px; color:var(--pink); }
+.ai-chip:hover { border-color:var(--pink); color:var(--pink); background:var(--pink-light); transform:translateY(-1px); box-shadow:var(--shadow); }
+
+/* ── Tools grid ── */
+.tools-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(155px, 1fr)); gap:12px; margin-bottom:28px; }
+.tool-card {
+  background:var(--white); border:1px solid var(--border);
+  border-radius:var(--r3); padding:16px; cursor:pointer;
+  transition:all 0.18s; position:relative; overflow:hidden;
+  animation:fadeUp 0.25s ease both;
+  box-shadow:var(--shadow-sm);
+}
+.tool-card::after { content:''; position:absolute; inset:0; border-radius:var(--r3); opacity:0; transition:opacity 0.15s; }
+.tool-card:hover { border-color:transparent; transform:translateY(-3px); box-shadow:var(--shadow); }
+.tool-card:hover::after { opacity:1; }
+.tool-card:active { transform:translateY(-1px); }
+
+.tc-icon { width:40px; height:40px; border-radius:var(--r2); display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:12px; flex-shrink:0; }
+.tc-name { font-size:13px; font-weight:500; color:var(--text); margin-bottom:3px; line-height:1.3; }
+.tc-desc { font-size:11px; color:var(--text3); line-height:1.5; }
+.tc-arrow { position:absolute; top:14px; right:14px; font-size:14px; color:var(--text3); opacity:0; transform:translate(2px,-2px); transition:all 0.15s; }
+.tool-card:hover .tc-arrow { opacity:1; transform:translate(0,0); }
+.tc-badge { position:absolute; bottom:10px; right:10px; font-size:9px; font-weight:700; padding:2px 6px; border-radius:10px; letter-spacing:0.03em; text-transform:uppercase; }
+.tcb-ai { background:var(--pink-light); color:var(--pink); }
+.tcb-new { background:var(--green-light); color:var(--green); }
+.tcb-pro { background:var(--amber-light); color:var(--amber); }
+
+/* icon color sets */
+.ico-orange { background:var(--accent-light); color:var(--accent); }
+.ico-blue { background:var(--blue-light); color:var(--blue); }
+.ico-green { background:var(--green-light); color:var(--green); }
+.ico-teal { background:var(--teal-light); color:var(--teal); }
+.ico-amber { background:var(--amber-light); color:var(--amber); }
+.ico-purple { background:var(--purple-light); color:var(--purple); }
+.ico-pink { background:var(--pink-light); color:var(--pink); }
+.ico-gray { background:var(--off2); color:var(--text2); }
+.ico-red { background:#fff0f0; color:#dc2626; }
+
+/* ── Files table ── */
+.files-wrap { background:var(--white); border:1px solid var(--border); border-radius:var(--r3); overflow:hidden; box-shadow:var(--shadow-sm); }
+.files-table { width:100%; border-collapse:collapse; }
+.files-table th { text-align:left; font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text3); padding:12px 16px 10px; border-bottom:1px solid var(--border); background:var(--off); }
+.files-table td { padding:11px 16px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle; }
+.files-table tr:last-child td { border-bottom:none; }
+.files-table tbody tr:hover td { background:var(--off); }
+.f-name { display:flex; align-items:center; gap:10px; }
+.f-icon { width:32px; height:32px; border-radius:var(--r); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+.f-nm { font-weight:500; color:var(--text); }
+.f-op { color:var(--text2); }
+.f-date { color:var(--text3); }
+.f-size { color:var(--text3); font-variant-numeric:tabular-nums; }
+.status-pill { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; padding:3px 9px; border-radius:20px; }
+.sp-done { background:var(--green-light); color:var(--green); }
+.sp-proc { background:var(--blue-light); color:var(--blue); }
+.sp-err { background:#fff0f0; color:#dc2626; }
+.f-actions { display:flex; gap:5px; }
+.icon-btn { width:28px; height:28px; border-radius:var(--r); background:transparent; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text3); font-size:14px; transition:all 0.14s; }
+.icon-btn:hover { background:var(--off2); color:var(--text); border-color:var(--border2); }
+
+/* ── Panels ── */
+.panel { display:none; }
+.panel.active { display:block; }
+
+/* ── Modal ── */
+.overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.35); z-index:100; align-items:center; justify-content:center; backdrop-filter:blur(3px); }
+.overlay.open { display:flex; }
+.modal {
+  background:var(--white); border:1px solid var(--border);
+  border-radius:var(--r4); width:500px; max-width:94vw;
+  overflow:hidden; box-shadow:var(--shadow-lg);
+  animation:modalIn 0.2s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes modalIn { from { opacity:0; transform:scale(0.93) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }
+.modal-hdr { padding:20px 22px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+.modal-hdr-icon { width:38px; height:38px; border-radius:var(--r2); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.modal-hdr-info { flex:1; }
+.modal-title { font-family:var(--font-display); font-size:16px; font-weight:600; color:var(--text); }
+.modal-sub { font-size:12px; color:var(--text3); margin-top:1px; }
+.close-btn { width:30px; height:30px; border-radius:var(--r); background:none; border:1px solid var(--border); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text3); font-size:16px; transition:all 0.14s; }
+.close-btn:hover { background:var(--off); color:var(--text); }
+.modal-body { padding:20px 22px; max-height:65vh; overflow-y:auto; }
+.modal-ftr { padding:14px 22px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:10px; background:var(--off); }
+
+/* Drop zone in modal */
+.drop-zone {
+  border:2px dashed var(--border2); border-radius:var(--r3);
+  padding:28px; text-align:center; cursor:pointer;
+  transition:all 0.15s; margin-bottom:18px;
+}
+.drop-zone:hover { border-color:var(--accent); background:var(--accent-light); }
+.drop-zone i { font-size:28px; color:var(--text3); margin-bottom:8px; display:block; transition:color 0.15s; }
+.drop-zone:hover i { color:var(--accent); }
+.drop-zone p { font-size:13px; color:var(--text2); margin-bottom:2px; }
+.drop-zone small { font-size:11px; color:var(--text3); }
+
+/* Form elements */
+.form-row { margin-bottom:14px; }
+.form-label { display:block; font-size:12px; font-weight:500; color:var(--text2); margin-bottom:5px; }
+.form-select, .form-input {
+  width:100%; background:var(--off); border:1px solid var(--border);
+  border-radius:var(--r2); padding:9px 12px;
+  font-family:var(--font-body); font-size:13px; color:var(--text);
+  outline:none; transition:all 0.14s; appearance:none;
+}
+.form-select:focus, .form-input:focus { border-color:var(--accent); background:var(--white); box-shadow:0 0 0 3px rgba(232,80,10,0.08); }
+.check-row { display:flex; align-items:center; gap:9px; font-size:13px; color:var(--text2); margin-bottom:8px; cursor:pointer; }
+.check-row input[type=checkbox] { accent-color:var(--accent); width:14px; height:14px; cursor:pointer; }
+
+/* Progress */
+.prog-wrap { display:none; margin-top:4px; }
+.prog-wrap.active { display:block; }
+.prog-hdr { display:flex; justify-content:space-between; font-size:12px; color:var(--text2); margin-bottom:7px; font-weight:500; }
+.prog-track { height:6px; background:var(--off2); border-radius:3px; overflow:hidden; }
+.prog-bar-anim { height:100%; border-radius:3px; background:linear-gradient(90deg, var(--accent), #f97316); transition:width 0.25s ease; }
+.success-block { display:none; text-align:center; padding:16px 0 4px; }
+.success-block.active { display:block; }
+.success-ico { width:52px; height:52px; background:var(--green-light); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; }
+.success-ico i { font-size:24px; color:var(--green); }
+.success-ttl { font-size:14px; font-weight:600; color:var(--text); margin-bottom:4px; }
+.success-sub { font-size:12px; color:var(--text2); }
+
+/* Category page header */
+.cat-hero { background:var(--white); border:1px solid var(--border); border-radius:var(--r3); padding:22px 24px; margin-bottom:22px; display:flex; align-items:center; gap:16px; box-shadow:var(--shadow-sm); }
+.cat-hero-icon { width:48px; height:48px; border-radius:var(--r3); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+.cat-hero-title { font-family:var(--font-display); font-size:20px; font-weight:700; margin-bottom:3px; }
+.cat-hero-desc { font-size:13px; color:var(--text2); }
+
+/* Cloud grid */
+.cloud-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:14px; }
+.cloud-card { background:var(--white); border:1px solid var(--border); border-radius:var(--r3); padding:20px; cursor:pointer; transition:all 0.15s; box-shadow:var(--shadow-sm); text-align:center; }
+.cloud-card:hover { border-color:var(--accent); box-shadow:var(--shadow); transform:translateY(-2px); }
+.cloud-card i { font-size:32px; margin-bottom:10px; display:block; }
+.cloud-card-name { font-size:14px; font-weight:500; margin-bottom:4px; }
+.cloud-card-desc { font-size:12px; color:var(--text3); }
+.cloud-badge { display:inline-block; font-size:10px; font-weight:600; padding:2px 8px; border-radius:20px; margin-top:8px; }
+
+/* Tabs */
+.tab-row { display:flex; gap:3px; background:var(--off2); border-radius:var(--r2); padding:3px; width:fit-content; margin-bottom:20px; }
+.tab { padding:7px 18px; border-radius:var(--r); font-size:13px; font-weight:500; cursor:pointer; color:var(--text2); transition:all 0.14s; }
+.tab.active { background:var(--white); color:var(--text); box-shadow:var(--shadow-sm); }
+
+/* Scroll bar */
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+
+/* Animations */
+@keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+/* Responsive */
+@media(max-width:900px) {
+  .shell { grid-template-columns:1fr; }
+  .sidebar { display:none; }
+  .stats-grid { grid-template-columns:repeat(2,1fr); }
+  .content { padding:16px; }
+}
+
+/* Settings */
+.settings-section { background:var(--white); border:1px solid var(--border); border-radius:var(--r3); padding:22px 24px; margin-bottom:16px; box-shadow:var(--shadow-sm); }
+.settings-section-title { font-size:14px; font-weight:600; margin-bottom:16px; color:var(--text); }
+.settings-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+/* Divider */
+.divider { height:1px; background:var(--border); margin:20px 0; }
+
+/* ── API Key Modal ── */
+.apikey-modal {
+  background:var(--white); border:1px solid var(--border);
+  border-radius:var(--r4); width:480px; max-width:94vw;
+  overflow:hidden; box-shadow:var(--shadow-lg);
+  animation:modalIn 0.22s cubic-bezier(0.34,1.56,0.64,1);
+}
+.apikey-header {
+  padding:22px 24px 18px;
+  background:linear-gradient(135deg,#f0fdf9 0%,#fafffe 100%);
+  border-bottom:1px solid var(--border);
+}
+.apikey-header-top { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.apikey-brand-icon {
+  width:42px; height:42px; border-radius:var(--r2);
+  background:#10a37f; display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; box-shadow:0 2px 8px rgba(16,163,127,0.3);
+}
+.apikey-brand-icon svg { width:22px; height:22px; fill:#fff; }
+.apikey-header-text { flex:1; }
+.apikey-title { font-family:var(--font-display); font-size:16px; font-weight:700; color:var(--text); }
+.apikey-subtitle { font-size:12px; color:var(--text2); margin-top:2px; }
+.shortcut-hint {
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:11px; color:var(--text3); background:var(--off2);
+  border:1px solid var(--border); border-radius:6px; padding:3px 8px;
+}
+.kbd {
+  display:inline-block; font-size:10px; font-weight:600;
+  font-family:var(--font-body); background:var(--white);
+  border:1px solid var(--border2); border-radius:4px;
+  padding:1px 5px; color:var(--text2); line-height:1.6;
+  box-shadow:0 1px 0 var(--border2);
+}
+.apikey-status-bar {
+  display:flex; align-items:center; gap:8px;
+  background:var(--white); border:1px solid var(--border);
+  border-radius:var(--r); padding:8px 12px; font-size:12px;
+}
+.status-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.dot-none { background:var(--text3); }
+.dot-set { background:var(--green); box-shadow:0 0 0 3px rgba(13,158,110,0.15); }
+.dot-err { background:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,0.15); }
+.apikey-body { padding:20px 24px; }
+.apikey-input-wrap { position:relative; display:flex; align-items:center; }
+.apikey-input {
+  width:100%; background:var(--off); border:1.5px solid var(--border);
+  border-radius:var(--r2); padding:11px 90px 11px 14px;
+  font-family:'DM Sans',monospace; font-size:13px; color:var(--text);
+  outline:none; transition:all 0.15s; letter-spacing:0.01em;
+}
+.apikey-input:focus { border-color:#10a37f; background:var(--white); box-shadow:0 0 0 3px rgba(16,163,127,0.1); }
+.apikey-input.valid { border-color:var(--green); background:var(--green-light); }
+.apikey-input.invalid { border-color:#dc2626; background:#fff5f5; }
+.apikey-toggle {
+  position:absolute; right:8px; display:flex; gap:4px;
+}
+.apikey-toggle button {
+  background:var(--off2); border:1px solid var(--border); border-radius:6px;
+  padding:4px 8px; cursor:pointer; font-size:12px; color:var(--text2);
+  font-family:var(--font-body); transition:all 0.14s; white-space:nowrap;
+}
+.apikey-toggle button:hover { background:var(--border); color:var(--text); }
+.apikey-hint { font-size:11.5px; color:var(--text3); margin-top:8px; line-height:1.6; }
+.apikey-hint a { color:#10a37f; text-decoration:none; }
+.apikey-hint a:hover { text-decoration:underline; }
+.apikey-validation { display:none; align-items:center; gap:6px; margin-top:10px; font-size:12px; font-weight:500; }
+.apikey-validation.show { display:flex; }
+.apikey-validation.ok { color:var(--green); }
+.apikey-validation.fail { color:#dc2626; }
+.apikey-models { margin-top:16px; display:none; }
+.apikey-models.show { display:block; }
+.model-select-label { font-size:12px; font-weight:500; color:var(--text2); margin-bottom:6px; display:block; }
+.model-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.model-opt {
+  border:1.5px solid var(--border); border-radius:var(--r2); padding:10px 12px;
+  cursor:pointer; transition:all 0.14s; background:var(--white);
+}
+.model-opt:hover { border-color:#10a37f; background:#f0fdf9; }
+.model-opt.selected { border-color:#10a37f; background:#f0fdf9; }
+.model-opt-name { font-size:13px; font-weight:500; color:var(--text); }
+.model-opt-desc { font-size:11px; color:var(--text3); margin-top:2px; }
+.model-opt-badge { font-size:9px; font-weight:700; padding:1px 6px; border-radius:10px; margin-top:4px; display:inline-block; }
+.mb-latest { background:#dcfce7; color:#166534; }
+.mb-fast { background:var(--blue-light); color:var(--blue); }
+.mb-adv { background:var(--purple-light); color:var(--purple); }
+.mb-eco { background:var(--amber-light); color:var(--amber); }
+.apikey-ftr {
+  padding:14px 24px; border-top:1px solid var(--border);
+  display:flex; justify-content:space-between; align-items:center;
+  background:var(--off);
+}
+.apikey-ftr-left { font-size:11px; color:var(--text3); }
+.apikey-ftr-right { display:flex; gap:10px; }
+.btn-gpt { background:#10a37f; color:#fff; box-shadow:0 2px 8px rgba(16,163,127,0.25); }
+.btn-gpt:hover { background:#0d8f6e; transform:translateY(-1px); box-shadow:0 4px 12px rgba(16,163,127,0.3); }
+.btn-gpt:disabled { background:var(--border2); color:var(--text3); box-shadow:none; transform:none; cursor:not-allowed; }
+
+/* Toast notification */
+.toast {
+  position:fixed; bottom:24px; right:24px; z-index:200;
+  background:var(--text); color:#fff; border-radius:var(--r2);
+  padding:12px 18px; font-size:13px; font-weight:500;
+  display:flex; align-items:center; gap:10px;
+  box-shadow:var(--shadow-lg); pointer-events:none;
+  opacity:0; transform:translateY(8px);
+  transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+.toast.show { opacity:1; transform:translateY(0); }
+.toast i { font-size:16px; }
+.toast.t-success { background:#0d9e6e; }
+.toast.t-error { background:#dc2626; }
+.toast.t-info { background:var(--text); }
+
+/* API key set indicator in sidebar */
+.api-indicator {
+  display:flex; align-items:center; gap:8px; padding:8px 10px;
+  border-radius:var(--r); margin:0 10px 10px; font-size:12px;
+  background:var(--green-light); color:var(--green); font-weight:500;
+  border:1px solid rgba(13,158,110,0.2); cursor:pointer; transition:all 0.14s;
+}
+.api-indicator:hover { background:#d1fae5; }
+.api-indicator.hidden { display:none; }
+.api-indicator-none {
+  display:flex; align-items:center; gap:8px; padding:8px 10px;
+  border-radius:var(--r); margin:0 10px 10px; font-size:12px;
+  background:var(--amber-light); color:var(--amber); font-weight:500;
+  border:1px solid rgba(217,119,6,0.2); cursor:pointer; transition:all 0.14s;
+}
+.api-indicator-none:hover { background:#fde68a; }
+.api-indicator-none.hidden { display:none; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark"><i class="ti ti-file-description"></i></div>
+    <div>
+      <div class="logo-name">Doc<span>Forge</span></div>
+      <div class="logo-ver">PDF Suite v2.0</div>
+    </div>
+  </div>
+
+  <div class="nav-wrap">
+    <div class="nav-section">
+      <div class="nav-section-label">Workspace</div>
+      <div class="nav-item active" onclick="nav(this,'dashboard')">
+        <i class="ti ti-layout-dashboard nav-icon"></i> Dashboard
+      </div>
+      <div class="nav-item" onclick="nav(this,'recent')">
+        <i class="ti ti-clock nav-icon"></i> Recent Files
+        <span class="nav-badge nb-count">12</span>
+      </div>
+      <div class="nav-item" onclick="nav(this,'cloud')">
+        <i class="ti ti-cloud nav-icon"></i> Cloud Storage
+      </div>
+    </div>
+
+    <div class="nav-section" style="margin-top:8px">
+      <div class="nav-section-label">PDF Tools</div>
+      <div class="nav-item" onclick="nav(this,'create')">
+        <i class="ti ti-file-plus nav-icon"></i> Create PDF
+      </div>
+      <div class="nav-item" onclick="nav(this,'convert')">
+        <i class="ti ti-refresh nav-icon"></i> Convert PDF
+      </div>
+      <div class="nav-item" onclick="nav(this,'edit')">
+        <i class="ti ti-edit nav-icon"></i> Edit PDF
+      </div>
+      <div class="nav-item" onclick="nav(this,'organize')">
+        <i class="ti ti-layout-list nav-icon"></i> Organize Pages
+      </div>
+      <div class="nav-item" onclick="nav(this,'compress')">
+        <i class="ti ti-compress nav-icon"></i> Compress &amp; Repair
+      </div>
+    </div>
+
+    <div class="nav-section" style="margin-top:8px">
+      <div class="nav-section-label">Advanced</div>
+      <div class="nav-item" onclick="nav(this,'ocr')">
+        <i class="ti ti-scan nav-icon"></i> OCR &amp; Scan
+        <span class="nav-badge nb-new">New</span>
+      </div>
+      <div class="nav-item" onclick="nav(this,'security')">
+        <i class="ti ti-lock nav-icon"></i> Security
+      </div>
+      <div class="nav-item" onclick="nav(this,'sign')">
+        <i class="ti ti-signature nav-icon"></i> eSign &amp; Forms
+      </div>
+      <div class="nav-item" onclick="nav(this,'collab')">
+        <i class="ti ti-users nav-icon"></i> Collaborate
+      </div>
+      <div class="nav-item" onclick="nav(this,'watermark')">
+        <i class="ti ti-droplet nav-icon"></i> Watermark
+      </div>
+      <div class="nav-item" onclick="nav(this,'ai')">
+        <i class="ti ti-sparkles nav-icon"></i> AI Features
+        <span class="nav-badge nb-ai">AI</span>
+      </div>
+    </div>
+
+    <div class="nav-section" style="margin-top:8px">
+      <div class="nav-section-label">System</div>
+      <div class="nav-item" onclick="nav(this,'settings')">
+        <i class="ti ti-settings nav-icon"></i> Settings
+      </div>
+      <div class="nav-item">
+        <i class="ti ti-help-circle nav-icon"></i> Help &amp; Docs
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <!-- API key status indicator -->
+    <div class="api-indicator hidden" id="apiIndicator" onclick="openApiKeyModal()" title="ChatGPT API Connected — click to manage">
+      <div class="status-dot dot-set"></div>
+      <span style="flex:1">ChatGPT API connected</span>
+      <i class="ti ti-settings" style="font-size:14px;opacity:0.7"></i>
+    </div>
+    <div class="api-indicator-none" id="apiIndicatorNone" onclick="openApiKeyModal()" title="Press Ctrl+Shift+A to add API key">
+      <i class="ti ti-key" style="font-size:14px"></i>
+      <span style="flex:1">Add ChatGPT API key</span>
+      <div style="display:flex;gap:2px"><span class="kbd">⌃</span><span class="kbd">⇧</span><span class="kbd">A</span></div>
+    </div>
+    <div class="user-row">
+      <div class="avatar">SK</div>
+      <div>
+        <div class="user-name">Sateesh K.</div>
+        <div class="user-plan">Pro Plan · 4.2 GB used</div>
+      </div>
+      <i class="ti ti-dots-vertical" style="color:var(--text3);font-size:16px;margin-left:auto"></i>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<main class="main">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-crumb">
+      <span class="crumb-home" onclick="nav(null,'dashboard')">DocForge</span>
+      <span class="crumb-sep">/</span>
+      <span class="crumb-cur" id="crumbCur">Dashboard</span>
+    </div>
+    <div class="search-wrap">
+      <i class="ti ti-search"></i>
+      <input class="search-input" type="text" placeholder="Search 45 tools…" oninput="searchTools(this.value)" id="searchInput">
+    </div>
+    <button class="btn btn-ghost" onclick="openModal('upload-modal',null)">
+      <i class="ti ti-upload" style="font-size:14px"></i> Upload
+    </button>
+    <button class="btn btn-accent" onclick="openModal('tool-modal','batch')">
+      <i class="ti ti-stack" style="font-size:14px"></i> Batch Process
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- ── DASHBOARD ── -->
+    <div id="panel-dashboard" class="panel active">
+
+      <!-- Upload hero -->
+      <div class="upload-hero" onclick="openModal('upload-modal',null)">
+        <div class="upload-hero-icon"><i class="ti ti-cloud-upload"></i></div>
+        <h2>Drop files to get started</h2>
+        <p>Drag &amp; drop files here, or click to browse — supports batch upload</p>
+        <div class="format-pills">
+          <span class="fpill">PDF</span><span class="fpill">DOCX</span><span class="fpill">XLSX</span>
+          <span class="fpill">PPTX</span><span class="fpill">JPG</span><span class="fpill">PNG</span>
+          <span class="fpill">HTML</span><span class="fpill">TXT</span>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon ico-orange"><i class="ti ti-files"></i></div>
+          <div class="stat-label">Files Processed</div>
+          <div class="stat-num">2,847</div>
+          <div class="stat-sub"><span class="stat-delta delta-up">↑ 12%</span> this month</div>
+          <div class="prog"><div class="prog-fill" style="width:72%;background:var(--accent)"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon ico-blue"><i class="ti ti-database"></i></div>
+          <div class="stat-label">Storage Used</div>
+          <div class="stat-num">4.2<span style="font-size:16px;font-weight:400;color:var(--text3)"> GB</span></div>
+          <div class="stat-sub">42% of 10 GB plan</div>
+          <div class="prog"><div class="prog-fill" style="width:42%;background:var(--blue)"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon ico-teal"><i class="ti ti-signature"></i></div>
+          <div class="stat-label">eSignatures</div>
+          <div class="stat-num">38</div>
+          <div class="stat-sub"><span class="stat-delta delta-up">5 pending</span> review</div>
+          <div class="prog"><div class="prog-fill" style="width:55%;background:var(--teal)"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon ico-pink"><i class="ti ti-sparkles"></i></div>
+          <div class="stat-label">AI Summaries</div>
+          <div class="stat-num">127</div>
+          <div class="stat-sub">Generated this week</div>
+          <div class="prog"><div class="prog-fill" style="width:88%;background:var(--pink)"></div></div>
+        </div>
+      </div>
+
+      <!-- AI strip -->
+      <div class="ai-strip">
+        <div class="ai-strip-label">
+          <span class="ai-pill">✦ AI</span>
+          <span class="ai-strip-title">Smart Document Intelligence</span>
+        </div>
+        <div class="ai-chips">
+          <div class="ai-chip" onclick="openModal('tool-modal','ai-chat')"><i class="ti ti-message-circle"></i> Chat with PDF</div>
+          <div class="ai-chip" onclick="openModal('tool-modal','ai-summary')"><i class="ti ti-sparkles"></i> AI Summary</div>
+          <div class="ai-chip" onclick="openModal('tool-modal','ai-present')"><i class="ti ti-presentation"></i> Generate Slides</div>
+          <div class="ai-chip" onclick="openModal('tool-modal','ai-podcast')"><i class="ti ti-microphone"></i> AI Podcast</div>
+          <div class="ai-chip" onclick="openModal('tool-modal','ai-insights')"><i class="ti ti-chart-bar"></i> Insights</div>
+          <div class="ai-chip" onclick="openModal('tool-modal','ai-qa')"><i class="ti ti-help-circle"></i> Q&amp;A Mode</div>
+        </div>
+      </div>
+
+      <!-- Quick tools -->
+      <div class="section-hdr">
+        <span class="section-title">Quick Access</span>
+        <span class="section-pill">Most used</span>
+        <span class="section-link" onclick="nav(null,'all')">See all 45 tools →</span>
+      </div>
+      <div class="tools-grid" id="quickGrid"></div>
+
+      <!-- Recent files -->
+      <div class="section-hdr">
+        <span class="section-title">Recent Files</span>
+        <span class="section-link" onclick="nav(null,'recent')">View all →</span>
+      </div>
+      <div class="files-wrap">
+        <table class="files-table">
+          <thead><tr><th>Name</th><th>Operation</th><th>Date</th><th>Size</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="recentTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── ALL TOOLS ── -->
+    <div id="panel-all" class="panel">
+      <div class="section-hdr">
+        <span class="section-title">All Tools</span>
+        <span class="section-pill" id="toolCountPill">45 tools</span>
+      </div>
+      <div class="tools-grid" id="allGrid"></div>
+    </div>
+
+    <!-- ── CATEGORY PANELS ── -->
+    <div id="panel-create" class="panel">
+      <div class="cat-hero"><div class="cat-hero-icon ico-orange"><i class="ti ti-file-plus"></i></div><div><div class="cat-hero-title">Create PDF</div><div class="cat-hero-desc">Convert any file type into a professional PDF document</div></div></div>
+      <div class="tools-grid" id="createGrid"></div>
+    </div>
+    <div id="panel-convert" class="panel">
+      <div class="cat-hero"><div class="cat-hero-icon ico-blue"><i class="ti ti-refresh"></i></div><div><div class="cat-hero-title">Convert PDF</div><div class="cat-hero-desc">Transform PDFs into editable Word, Excel, PowerPoint and more</div></div></div>
+      <div class="tools-grid" id="convertGrid"></div>
+    </div>
+    <div id="panel-edit" class="panel">
+      <div class="cat-hero"><div class="cat-hero-icon ico-teal"><i class="ti ti-edit"></i></div><div><div class="cat-hero-title">Edit PDF</div><div class="cat-hero-desc">Modify text, images, annotations and form fields</div></div></div>
+      <div class="tools-grid" id="editGrid"></div>
+    </div>
+    <div id="panel-organize" class="panel">
+      <div class="cat-hero"><div class="cat-hero-icon ico-purple"><i class="ti ti-layout-list"></i></div><div><div class="cat-hero-title">Organize Pages</div><div class="cat-hero-desc">Merge, split, reorder, rotate and crop pages with ease</div></div></div>
+      <div class="tools-grid" id="organizeGrid"></div>
+    </div>
+    <div id="panel-compress" class="panel">
+      <div class="cat-hero"><div class="cat-hero-icon ico-green"><i class="ti ti-compress"></i></div><div><div class="cat-hero-title">Compress &amp; Repair</div><div class="cat-hero-desc">Reduce file size, optimize and fix corrupted PDFs</div></div></div>
+      <div class="tools-grid" id="compressGrid"></div>
+    </div>
+    <div id="panel-ocr" class="panel">
+      <div class="cat-hero"><div class="cat-hero-icon ico-amber"><i class="ti ti-scan"></i></div><div><div class="cat-hero-title">OCR &amp; Scanning</div><div class="cat-hero-desc">Extract text from scanned documents and make them searchable</div></div></div>
+      <div class="tools-grid" id="ocrGrid"></div>
+    </div>
+    <div id="panel-security" class="panel">
+      <div class="cat-hero"><div class="cat-hero-icon ico-red"><i class="ti ti-lock"></i></div><div><div class="cat-hero-title">Security &amp; Protection</div><div class="cat-hero-desc">Password protect, redact and apply digital certificates</div></div></div>
+      <div class="tools-grid" id="securityGrid"></div>
+    </div>
+    <div id="panel-sign" class="panel">
+      <div class="cat-hero"><div class="cat-hero-icon ico-blue"><i class="ti ti-signature"></i></div><div><div class="cat-hero-title">eSign &amp; Forms</div><div class="cat-hero-desc">Electronic signatures, fillable forms and signature tracking</div></div></div>
+      <div class="tools-grid" id="signGrid"></div>
+    </div>
+    <div id="panel-collab" class="panel">
+      <div class="cat-hero"><div class="cat-hero-icon ico-teal"><i class="ti ti-users"></i></div><div><div class="cat-hero-title">Collaborate &amp; Review</div><div class="cat-hero-desc">Comments, annotations, document comparison and team workflows</div></div></div>
+      <div class="tools-grid" id="collabGrid"></div>
+    </div>
+    <div id="panel-watermark" class="panel">
+      <div class="cat-hero"><div class="cat-hero-icon ico-gray"><i class="ti ti-droplet"></i></div><div><div class="cat-hero-title">Watermark &amp; Branding</div><div class="cat-hero-desc">Add text/image watermarks, stamps, headers and footers</div></div></div>
+      <div class="tools-grid" id="watermarkGrid"></div>
+    </div>
+    <div id="panel-ai" class="panel">
+      <div class="cat-hero" style="background:linear-gradient(135deg,#fff9f7,#fef2ff);border-color:#fde4d0"><div class="cat-hero-icon ico-pink"><i class="ti ti-sparkles"></i></div><div><div class="cat-hero-title">AI Features</div><div class="cat-hero-desc">Chat with PDFs, generate summaries, presentations and smart insights</div></div></div>
+      <div class="tools-grid" id="aiGrid"></div>
+    </div>
+
+    <!-- ── RECENT FILES ── -->
+    <div id="panel-recent" class="panel">
+      <div class="files-wrap">
+        <table class="files-table">
+          <thead><tr><th>Name</th><th>Operation</th><th>Date</th><th>Size</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="allRecentTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── CLOUD ── -->
+    <div id="panel-cloud" class="panel">
+      <div class="section-hdr"><span class="section-title">Cloud Integrations</span></div>
+      <div class="cloud-grid">
+        <div class="cloud-card"><i class="ti ti-brand-google-drive" style="color:#4285f4"></i><div class="cloud-card-name">Google Drive</div><div class="cloud-card-desc">Connect and sync files</div><span class="cloud-badge" style="background:var(--green-light);color:var(--green)">Connected</span></div>
+        <div class="cloud-card"><i class="ti ti-brand-dropbox" style="color:#0061ff"></i><div class="cloud-card-name">Dropbox</div><div class="cloud-card-desc">Sync your workspace</div><span class="cloud-badge" style="background:var(--off2);color:var(--text3)">Connect</span></div>
+        <div class="cloud-card"><i class="ti ti-brand-onedrive" style="color:#0078d4"></i><div class="cloud-card-name">Microsoft OneDrive</div><div class="cloud-card-desc">Microsoft 365 integration</div><span class="cloud-badge" style="background:var(--off2);color:var(--text3)">Connect</span></div>
+        <div class="cloud-card"><i class="ti ti-cloud" style="color:var(--accent)"></i><div class="cloud-card-name">DocForge Cloud</div><div class="cloud-card-desc">10 GB native storage</div><span class="cloud-badge" style="background:var(--accent-light);color:var(--accent)">Active — 4.2 GB</span></div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS ── -->
+    <div id="panel-settings" class="panel">
+      <div class="settings-section">
+        <div class="settings-section-title">Processing Defaults</div>
+        <div class="settings-grid">
+          <div class="form-row"><label class="form-label">Default compression level</label><select class="form-select"><option>High Quality (light)</option><option selected>Balanced</option><option>Maximum compression</option></select></div>
+          <div class="form-row"><label class="form-label">Default output format</label><select class="form-select"><option selected>PDF 1.7</option><option>PDF/A-1b</option><option>PDF/A-2b</option><option>PDF 2.0</option></select></div>
+          <div class="form-row"><label class="form-label">OCR language</label><select class="form-select"><option>English</option><option>Arabic</option><option>Auto-detect</option></select></div>
+          <div class="form-row"><label class="form-label">Auto-save location</label><input class="form-input" value="/Downloads/DocForge/"></div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">Preferences</div>
+        <div class="check-row"><input type="checkbox" checked> Auto-delete processed files after 7 days</div>
+        <div class="check-row"><input type="checkbox" checked> Enable OCR on scanned uploads automatically</div>
+        <div class="check-row"><input type="checkbox"> Always embed fonts in output PDFs</div>
+        <div class="check-row"><input type="checkbox" checked> Show desktop processing notifications</div>
+        <div class="check-row"><input type="checkbox"> Compress files before uploading to cloud</div>
+        <button class="btn btn-accent" style="margin-top:16px"><i class="ti ti-check" style="font-size:14px"></i> Save Settings</button>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+</div>
+
+<!-- ══ TOOL MODAL ══ -->
+<div id="tool-modal" class="overlay" onclick="overlayClick(event,'tool-modal')">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-hdr-icon ico-orange" id="mIcon"><i id="mIconI" class="ti ti-file"></i></div>
+      <div class="modal-hdr-info">
+        <div class="modal-title" id="mTitle">Process</div>
+        <div class="modal-sub" id="mSub">Upload a file to begin</div>
+      </div>
+      <button class="close-btn" onclick="closeModal('tool-modal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="drop-zone" onclick="startProcess()">
+        <i class="ti ti-cloud-upload"></i>
+        <p>Drop file here or click to browse</p>
+        <small>PDF, DOCX, XLSX, PPTX, JPG, PNG · max 200 MB</small>
+      </div>
+      <div id="mOptions"></div>
+      <div class="prog-wrap" id="mProg">
+        <div class="prog-hdr"><span id="mProgLbl">Processing…</span><span id="mProgPct">0%</span></div>
+        <div class="prog-track"><div class="prog-bar-anim" id="mProgBar" style="width:0%"></div></div>
+      </div>
+      <div class="success-block" id="mSuccess">
+        <div class="success-ico"><i class="ti ti-check"></i></div>
+        <div class="success-ttl">Processing Complete</div>
+        <div class="success-sub">Your file is ready to download</div>
+      </div>
+    </div>
+    <div class="modal-ftr">
+      <button class="btn btn-ghost" onclick="closeModal('tool-modal')">Cancel</button>
+      <button class="btn btn-accent" id="mActionBtn" onclick="startProcess()">
+        <i class="ti ti-bolt" style="font-size:13px"></i> Process File
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ API KEY MODAL ══ -->
+<div id="apikey-overlay" class="overlay" onclick="overlayClick(event,'apikey-overlay')">
+  <div class="apikey-modal">
+
+    <!-- Header -->
+    <div class="apikey-header">
+      <div class="apikey-header-top">
+        <div class="apikey-brand-icon">
+          <svg viewBox="0 0 41 41" xmlns="http://www.w3.org/2000/svg"><path d="M37.532 16.87a9.963 9.963 0 00-.856-8.184 10.078 10.078 0 00-10.855-4.835 9.964 9.964 0 00-7.505-3.348 10.079 10.079 0 00-9.612 6.977 9.967 9.967 0 00-6.664 4.834 10.08 10.08 0 001.24 11.817 9.965 9.965 0 00.856 8.185 10.079 10.079 0 0010.855 4.835 9.965 9.965 0 007.504 3.347 10.078 10.078 0 009.617-6.981 9.967 9.967 0 006.663-4.834 10.079 10.079 0 00-1.243-11.813zM22.498 37.886a7.474 7.474 0 01-4.799-1.735c.061-.033.168-.091.237-.134l7.964-4.6a1.294 1.294 0 00.655-1.134V19.054l3.366 1.944a.12.12 0 01.066.092v9.299a7.505 7.505 0 01-7.49 7.496zM6.392 31.006a7.471 7.471 0 01-.894-5.023c.06.036.162.099.237.141l7.964 4.6a1.297 1.297 0 001.308 0l9.724-5.614v3.888a.12.12 0 01-.048.103L16.05 33.6a7.504 7.504 0 01-9.658-2.594zM4.297 13.62A7.469 7.469 0 018.2 10.333c0 .068-.004.19-.004.274v9.201a1.294 1.294 0 00.654 1.132l9.723 5.614-3.366 1.944a.12.12 0 01-.114.012L7.044 23.86a7.504 7.504 0 01-2.747-10.24zm27.658 6.437l-9.724-5.615 3.367-1.943a.121.121 0 01.114-.012l8.048 4.648a7.498 7.498 0 01-1.158 13.528v-9.476a1.293 1.293 0 00-.647-1.13zm3.35-5.043c-.059-.037-.162-.099-.236-.141l-7.965-4.6a1.298 1.298 0 00-1.308 0l-9.723 5.614v-3.888a.12.12 0 01.048-.103l8.047-4.648a7.498 7.498 0 0111.138 7.763zm-21.063 6.929l-3.367-1.944a.12.12 0 01-.065-.092v-9.299a7.497 7.497 0 0112.293-5.756 6.94 6.94 0 00-.236.134l-7.965 4.6a1.294 1.294 0 00-.654 1.132l-.006 11.225zm1.829-3.943l4.33-2.501 4.332 2.497v4.998l-4.331 2.5-4.331-2.5V18z"/></svg>
+        </div>
+        <div class="apikey-header-text">
+          <div class="apikey-title">ChatGPT API Configuration</div>
+          <div class="apikey-subtitle">Connect OpenAI to power all AI features in DocForge</div>
+        </div>
+        <div class="shortcut-hint">
+          <span class="kbd">Ctrl</span><span class="kbd">Shift</span><span class="kbd">A</span>
+        </div>
+        <button class="close-btn" onclick="closeModal('apikey-overlay')" style="margin-left:8px"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="apikey-status-bar" id="apikeyStatusBar">
+        <div class="status-dot dot-none" id="apikeyDot"></div>
+        <span id="apikeyStatusText" style="color:var(--text2)">No API key configured — AI features are disabled</span>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="apikey-body">
+      <div class="form-row" style="margin-bottom:6px">
+        <label class="form-label">OpenAI API Key</label>
+        <div class="apikey-input-wrap">
+          <input class="apikey-input" id="apikeyInput" type="password"
+            placeholder="sk-proj-••••••••••••••••••••••••••••••••••••••••••••••"
+            oninput="onApiKeyInput(this.value)" autocomplete="off" spellcheck="false">
+          <div class="apikey-toggle">
+            <button onclick="toggleKeyVisibility()" id="visToggle" title="Show/hide key">
+              <i class="ti ti-eye" id="visIcon"></i>
+            </button>
+            <button onclick="clearApiKey()" title="Clear key">
+              <i class="ti ti-x"></i>
+            </button>
+          </div>
+        </div>
+        <div class="apikey-hint">
+          Your key is stored locally in <code style="font-size:11px;background:var(--off2);padding:1px 5px;border-radius:4px">localStorage</code> — never sent to DocForge servers.
+          Get your key at <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys ↗</a>
+        </div>
+      </div>
+
+      <div class="apikey-validation" id="apikeyValidation">
+        <i class="ti ti-check" id="apikeyValIcon"></i>
+        <span id="apikeyValText"></span>
+      </div>
+
+      <!-- Model selection — shown after key is entered -->
+      <div class="apikey-models" id="modelSelect">
+        <label class="model-select-label">Default model for AI features</label>
+        <div class="model-grid">
+          <div class="model-opt selected" onclick="selectModel(this,'gpt-4o')" id="model-gpt-4o">
+            <div class="model-opt-name">GPT-4o</div>
+            <div class="model-opt-desc">Best balance of speed & quality</div>
+            <span class="model-opt-badge mb-latest">Recommended</span>
+          </div>
+          <div class="model-opt" onclick="selectModel(this,'gpt-4o-mini')" id="model-gpt-4o-mini">
+            <div class="model-opt-name">GPT-4o mini</div>
+            <div class="model-opt-desc">Fast & cost-effective</div>
+            <span class="model-opt-badge mb-fast">Fast</span>
+          </div>
+          <div class="model-opt" onclick="selectModel(this,'gpt-4-turbo')" id="model-gpt-4-turbo">
+            <div class="model-opt-name">GPT-4 Turbo</div>
+            <div class="model-opt-desc">High intelligence, longer context</div>
+            <span class="model-opt-badge mb-adv">Advanced</span>
+          </div>
+          <div class="model-opt" onclick="selectModel(this,'gpt-3.5-turbo')" id="model-gpt-3.5-turbo">
+            <div class="model-opt-name">GPT-3.5 Turbo</div>
+            <div class="model-opt-desc">Lightweight, lowest cost</div>
+            <span class="model-opt-badge mb-eco">Economy</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="apikey-ftr">
+      <div class="apikey-ftr-left" id="apikeyFtrNote">AI features: Chat, Summary, Presentation, Podcast, Insights, Q&amp;A</div>
+      <div class="apikey-ftr-right">
+        <button class="btn btn-ghost" onclick="closeModal('apikey-overlay')">Cancel</button>
+        <button class="btn btn-gpt" id="apiSaveBtn" onclick="saveApiKey()" disabled>
+          <i class="ti ti-device-floppy" style="font-size:13px"></i> Save &amp; Activate
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <i class="ti ti-check" id="toastIcon"></i>
+  <span id="toastMsg">Saved</span>
+</div>
+
+<!-- ══ UPLOAD MODAL ══ -->
+<div id="upload-modal" class="overlay" onclick="overlayClick(event,'upload-modal')">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-hdr-icon ico-blue"><i class="ti ti-upload"></i></div>
+      <div class="modal-hdr-info">
+        <div class="modal-title">Upload Files</div>
+        <div class="modal-sub">Add files to your DocForge workspace</div>
+      </div>
+      <button class="close-btn" onclick="closeModal('upload-modal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="drop-zone"><i class="ti ti-cloud-upload"></i><p>Drop files here or click to browse</p><small>PDF, DOCX, XLSX, PPTX, JPG, PNG, HTML · 200 MB max</small></div>
+      <div class="form-row"><label class="form-label">Save to folder</label><select class="form-select"><option>Root</option><option>Projects</option><option>Archive</option><option>Shared</option></select></div>
+      <div class="check-row"><input type="checkbox" checked> Run OCR automatically on scanned files</div>
+      <div class="check-row"><input type="checkbox"> Compress after upload</div>
+    </div>
+    <div class="modal-ftr">
+      <button class="btn btn-ghost" onclick="closeModal('upload-modal')">Cancel</button>
+      <button class="btn btn-accent"><i class="ti ti-upload" style="font-size:14px"></i> Upload Files</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+/* ─── REAL API INTEGRATION ──────────────────────────────────────────── */
+const API_BASE = (() => {
+  const s = localStorage.getItem('docforge_api_url');
+  if (s) return s.replace(/\/$/, '');
+  if (location.hostname.includes('github.io')) return '';
+  return 'http://localhost:8000';
+})();
+
+function checkApiConfig() {
+  if (API_BASE !== '') { checkHealth(); return; }
+  const b = document.createElement('div');
+  b.id = 'api-banner';
+  b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#e8500a;color:#fff;padding:12px 20px;font-family:sans-serif;font-size:13px;display:flex;align-items:center;gap:14px;';
+  b.innerHTML = `<span style="flex:1">Connect your Render.com backend to enable all 45 PDF tools.</span>
+    <input id="apiUrlInput" type="text" placeholder="https://docforge-api.onrender.com"
+      style="padding:6px 12px;border-radius:6px;border:none;font-size:13px;width:320px;color:#1a1814">
+    <button onclick="saveApiUrl()" style="background:#fff;color:#e8500a;border:none;padding:7px 16px;border-radius:6px;font-weight:600;cursor:pointer">Connect</button>
+    <button onclick="this.parentElement.remove()" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.4);padding:7px 12px;border-radius:6px;cursor:pointer">x</button>`;
+  document.body.prepend(b);
+}
+
+function saveApiUrl() {
+  const url = (document.getElementById('apiUrlInput').value||'').trim().replace(/\/$/, '');
+  if (url) { localStorage.setItem('docforge_api_url', url); location.reload(); }
+}
+
+async function checkHealth() {
+  try {
+    const r = await fetch(API_BASE + '/api/v1/health', {signal: AbortSignal.timeout(5000)});
+    const d = await r.json();
+    console.log('DocForge health:', d);
+  } catch(e) { console.warn('API unreachable:', e.message); }
+}
+
+let _uploadedFileId = null;
+
+const TOOL_ENDPOINTS = {
+  'merge':'create/merge','split':'organize/split','compress':'compress/compress',
+  'repair':'compress/repair','optimize':'compress/optimize','archive':'compress/archive-pdfa',
+  'ocr':'ocr/ocr','ocr-search':'ocr/ocr','protect':'security/protect',
+  'unlock':'security/unlock','redact':'security/redact','sign':'sign/sign-text',
+  'wm-add':'watermark/add','word-pdf':'create/office-to-pdf','excel-pdf':'create/office-to-pdf',
+  'ppt-pdf':'create/office-to-pdf','jpg-pdf':'create/images-to-pdf','html-pdf':'create/html-to-pdf',
+  'multi-pdf':'create/merge','pdf-word':'convert/pdf-to-office','pdf-excel':'convert/pdf-to-office',
+  'pdf-ppt':'convert/pdf-to-office','pdf-jpg':'convert/pdf-to-images','pdf-pdfa':'convert/pdf-to-pdfa',
+  'highlight':'edit/highlight','add-text':'edit/add-text','fill-forms':'edit/fill-form',
+  'reorder':'organize/reorder','del-pages':'organize/delete-pages','extract':'organize/extract-pages',
+  'rotate':'organize/rotate','crop':'organize/crop','page-num':'organize/add-page-numbers',
+  'ai-chat':'ai/chat','ai-summary':'ai/summary','ai-insights':'ai/insights',
+  'ai-qa':'ai/qa','ai-present':'ai/presentation','ai-podcast':'ai/podcast',
+};
+
+async function uploadAndProcess(toolId, file, options={}) {
+  if (!API_BASE) { showToast('Set backend URL first','error','ti-alert-triangle'); return; }
+  const fd = new FormData();
+  fd.append('file', file);
+  const up = await fetch(API_BASE+'/api/v1/files/upload',{method:'POST',body:fd});
+  if (!up.ok) throw new Error('Upload failed: '+await up.text());
+  const upData = await up.json();
+  const ep = TOOL_ENDPOINTS[toolId];
+  if (!ep) throw new Error('Unknown tool: '+toolId);
+  const res = await fetch(API_BASE+'/api/v1/'+ep,{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({file_id: upData.file_id, ...options})
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return {upload: upData, result: await res.json()};
+}
+
+/* ─── DATA ─── */
+const TOOLS = [
+  {id:'word-pdf',   name:'Word to PDF',       desc:'Convert .docx files',       icon:'ti-file-word',        ico:'ico-blue',   cat:'create',   quick:true},
+  {id:'excel-pdf',  name:'Excel to PDF',      desc:'Convert spreadsheets',      icon:'ti-file-spreadsheet', ico:'ico-green',  cat:'create',   quick:true},
+  {id:'ppt-pdf',    name:'PowerPoint to PDF', desc:'Convert presentations',     icon:'ti-presentation',     ico:'ico-amber',  cat:'create'},
+  {id:'jpg-pdf',    name:'JPG / PNG to PDF',  desc:'Images to PDF',             icon:'ti-photo',            ico:'ico-teal',   cat:'create',   quick:true},
+  {id:'html-pdf',   name:'HTML to PDF',       desc:'Webpage to PDF',            icon:'ti-code',             ico:'ico-purple', cat:'create'},
+  {id:'scan-pdf',   name:'Scan to PDF',       desc:'Camera or scanner',         icon:'ti-scan',             ico:'ico-gray',   cat:'create'},
+  {id:'multi-pdf',  name:'Multiple to PDF',   desc:'Combine into one PDF',      icon:'ti-files',            ico:'ico-orange', cat:'create'},
+  {id:'pdf-word',   name:'PDF to Word',       desc:'Editable .docx output',     icon:'ti-file-word',        ico:'ico-blue',   cat:'convert',  quick:true},
+  {id:'pdf-excel',  name:'PDF to Excel',      desc:'Extract tables to .xlsx',   icon:'ti-table',            ico:'ico-green',  cat:'convert',  quick:true},
+  {id:'pdf-ppt',    name:'PDF to PowerPoint', desc:'Convert to .pptx',          icon:'ti-presentation',     ico:'ico-amber',  cat:'convert'},
+  {id:'pdf-jpg',    name:'PDF to JPG',        desc:'Every page as image',       icon:'ti-photo',            ico:'ico-teal',   cat:'convert'},
+  {id:'pdf-pdfa',   name:'PDF to PDF/A',      desc:'Archival format',           icon:'ti-archive',          ico:'ico-gray',   cat:'convert'},
+  {id:'batch',      name:'Batch Convert',     desc:'Multiple files at once',    icon:'ti-stack',            ico:'ico-purple', cat:'convert',  badge:'pro'},
+  {id:'edit-text',  name:'Edit Text',         desc:'Modify PDF text',           icon:'ti-cursor-text',      ico:'ico-blue',   cat:'edit'},
+  {id:'edit-img',   name:'Edit Images',       desc:'Replace or resize images',  icon:'ti-photo-edit',       ico:'ico-teal',   cat:'edit'},
+  {id:'add-text',   name:'Add Text',          desc:'Insert text anywhere',      icon:'ti-text-size',        ico:'ico-purple', cat:'edit'},
+  {id:'add-shapes', name:'Add Shapes',        desc:'Rectangles, lines, circles',icon:'ti-shapes',           ico:'ico-amber',  cat:'edit'},
+  {id:'draw',       name:'Draw on PDF',       desc:'Freehand drawing',          icon:'ti-pencil',           ico:'ico-orange', cat:'edit'},
+  {id:'highlight',  name:'Highlight Text',    desc:'Highlight, underline',      icon:'ti-highlight',        ico:'ico-amber',  cat:'edit',     quick:true},
+  {id:'annotate',   name:'Annotate PDF',      desc:'Arrows, callouts, notes',   icon:'ti-message-2',        ico:'ico-teal',   cat:'edit',     quick:true},
+  {id:'fill-forms', name:'Fill Forms',        desc:'Fill interactive forms',    icon:'ti-forms',            ico:'ico-green',  cat:'edit'},
+  {id:'merge',      name:'Merge PDF',         desc:'Combine multiple PDFs',     icon:'ti-git-merge',        ico:'ico-purple', cat:'organize', quick:true},
+  {id:'split',      name:'Split PDF',         desc:'Divide into multiple files',icon:'ti-scissors',         ico:'ico-red',    cat:'organize', quick:true},
+  {id:'reorder',    name:'Reorder Pages',     desc:'Drag-and-drop ordering',    icon:'ti-arrows-sort',      ico:'ico-blue',   cat:'organize'},
+  {id:'del-pages',  name:'Delete Pages',      desc:'Remove unwanted pages',     icon:'ti-trash',            ico:'ico-red',    cat:'organize'},
+  {id:'extract',    name:'Extract Pages',     desc:'Save specific pages',       icon:'ti-file-export',      ico:'ico-teal',   cat:'organize'},
+  {id:'rotate',     name:'Rotate Pages',      desc:'90° and 180° rotation',     icon:'ti-rotate',           ico:'ico-amber',  cat:'organize'},
+  {id:'crop',       name:'Crop Pages',        desc:'Trim page margins',         icon:'ti-crop',             ico:'ico-gray',   cat:'organize'},
+  {id:'page-num',   name:'Add Page Numbers',  desc:'Header/footer numbers',     icon:'ti-list-numbers',     ico:'ico-green',  cat:'organize'},
+  {id:'compress',   name:'Compress PDF',      desc:'Reduce file size',          icon:'ti-compress',         ico:'ico-teal',   cat:'compress', quick:true},
+  {id:'repair',     name:'Repair PDF',        desc:'Fix corrupted PDFs',        icon:'ti-tool',             ico:'ico-amber',  cat:'compress'},
+  {id:'optimize',   name:'Optimize PDF',      desc:'Web-optimize for fast load',icon:'ti-rocket',           ico:'ico-purple', cat:'compress'},
+  {id:'archive',    name:'Archive PDF/A',     desc:'Long-term archival',        icon:'ti-archive',          ico:'ico-gray',   cat:'compress'},
+  {id:'ocr',        name:'OCR PDF',           desc:'Extract text from scans',   icon:'ti-scan',             ico:'ico-teal',   cat:'ocr',      badge:'new'},
+  {id:'ocr-search', name:'Searchable PDF',    desc:'Make scans searchable',     icon:'ti-file-search',      ico:'ico-blue',   cat:'ocr',      badge:'new'},
+  {id:'ocr-mobile', name:'Mobile Scan',       desc:'Camera-based scanning',     icon:'ti-device-mobile',    ico:'ico-gray',   cat:'ocr'},
+  {id:'protect',    name:'Password Protect',  desc:'Add open/permission pwd',   icon:'ti-lock',             ico:'ico-red',    cat:'security', quick:true},
+  {id:'unlock',     name:'Unlock PDF',        desc:'Remove PDF password',       icon:'ti-lock-open',        ico:'ico-amber',  cat:'security'},
+  {id:'redact',     name:'Redact PDF',        desc:'Permanently hide text',     icon:'ti-eye-off',          ico:'ico-red',    cat:'security'},
+  {id:'cert',       name:'Digital Certificate',desc:'Sign with certificate',    icon:'ti-certificate',      ico:'ico-purple', cat:'security'},
+  {id:'sign',       name:'Sign PDF',          desc:'Electronic signature',      icon:'ti-signature',        ico:'ico-purple', cat:'sign',     quick:true},
+  {id:'req-sign',   name:'Request Signatures',desc:'Send docs to be signed',   icon:'ti-send',             ico:'ico-teal',   cat:'sign'},
+  {id:'track-sign', name:'Track Signatures',  desc:'Monitor signature status',  icon:'ti-activity',         ico:'ico-green',  cat:'sign'},
+  {id:'create-form',name:'Create Form',       desc:'Build fillable form fields',icon:'ti-forms',            ico:'ico-blue',   cat:'sign'},
+  {id:'comments',   name:'Comments',          desc:'Add inline comments',       icon:'ti-message-circle',   ico:'ico-teal',   cat:'collab'},
+  {id:'compare',    name:'Compare PDFs',      desc:'Side-by-side diff view',    icon:'ti-columns',          ico:'ico-purple', cat:'collab'},
+  {id:'review',     name:'Team Review',       desc:'Workflow-based review',     icon:'ti-users',            ico:'ico-blue',   cat:'collab'},
+  {id:'wm-add',     name:'Add Watermark',     desc:'Text or image watermark',   icon:'ti-droplet',          ico:'ico-teal',   cat:'watermark'},
+  {id:'wm-remove',  name:'Remove Watermark',  desc:'Strip existing watermarks', icon:'ti-droplet-off',      ico:'ico-red',    cat:'watermark'},
+  {id:'stamp',      name:'Page Stamps',       desc:'Headers, footers, stamps',  icon:'ti-stamp',            ico:'ico-amber',  cat:'watermark'},
+  {id:'ai-chat',    name:'Chat with PDF',     desc:'Ask questions via AI',      icon:'ti-message-circle-2', ico:'ico-pink',   cat:'ai',       badge:'ai'},
+  {id:'ai-summary', name:'AI Summary',        desc:'Generate document summary', icon:'ti-sparkles',         ico:'ico-pink',   cat:'ai',       badge:'ai'},
+  {id:'ai-present', name:'AI Presentation',   desc:'Generate slides from PDF',  icon:'ti-presentation',     ico:'ico-pink',   cat:'ai',       badge:'ai'},
+  {id:'ai-podcast', name:'AI Podcast',        desc:'Audio from PDF content',    icon:'ti-microphone',       ico:'ico-pink',   cat:'ai',       badge:'ai'},
+  {id:'ai-insights',name:'Document Insights', desc:'Smart analytics',           icon:'ti-chart-bar',        ico:'ico-pink',   cat:'ai',       badge:'ai'},
+  {id:'ai-qa',      name:'Q&A Mode',          desc:'Structured Q&A from doc',   icon:'ti-help-circle',      ico:'ico-pink',   cat:'ai',       badge:'ai'},
+];
+
+const MODAL_CFG = {
+  merge:{title:'Merge PDF',sub:'Combine multiple PDFs into one',icon:'ti-git-merge',ico:'ico-purple',opts:`
+    <div class="form-row"><label class="form-label">File order</label><select class="form-select"><option>As uploaded</option><option>Alphabetical</option><option>Custom order</option></select></div>
+    <div class="check-row"><input type="checkbox" checked> Add bookmarks for each merged file</div>
+    <div class="check-row"><input type="checkbox"> Flatten annotations before merging</div>`},
+  split:{title:'Split PDF',sub:'Divide into multiple documents',icon:'ti-scissors',ico:'ico-red',opts:`
+    <div class="form-row"><label class="form-label">Split mode</label><select class="form-select"><option>By page ranges</option><option>Every N pages</option><option>By bookmarks</option><option>By file size</option></select></div>
+    <div class="form-row"><label class="form-label">Page ranges (e.g. 1-3, 5, 7-9)</label><input class="form-input" placeholder="1-3, 5, 7-9"></div>`},
+  compress:{title:'Compress PDF',sub:'Reduce file size without quality loss',icon:'ti-compress',ico:'ico-teal',opts:`
+    <div class="form-row"><label class="form-label">Compression level</label><select class="form-select"><option>High quality (light)</option><option selected>Balanced (recommended)</option><option>Maximum compression</option></select></div>
+    <div class="check-row"><input type="checkbox" checked> Compress embedded images</div>
+    <div class="check-row"><input type="checkbox"> Remove metadata</div>
+    <div class="check-row"><input type="checkbox"> Subset embedded fonts</div>`},
+  protect:{title:'Password Protect',sub:'Add security to your PDF',icon:'ti-lock',ico:'ico-red',opts:`
+    <div class="form-row"><label class="form-label">Open password</label><input class="form-input" type="password" placeholder="Password to open the file"></div>
+    <div class="form-row"><label class="form-label">Permissions password</label><input class="form-input" type="password" placeholder="Restrict editing & printing"></div>
+    <div class="check-row"><input type="checkbox"> Prevent printing</div>
+    <div class="check-row"><input type="checkbox"> Prevent text copying</div>
+    <div class="check-row"><input type="checkbox"> Prevent editing</div>`},
+  ocr:{title:'OCR PDF',sub:'Extract text from scanned documents',icon:'ti-scan',ico:'ico-teal',opts:`
+    <div class="form-row"><label class="form-label">Document language</label><select class="form-select"><option>English</option><option>Arabic</option><option>French</option><option>German</option><option>Spanish</option><option>Chinese (Simplified)</option><option>Auto-detect</option></select></div>
+    <div class="form-row"><label class="form-label">Output mode</label><select class="form-select"><option>Searchable PDF</option><option>Editable text layer</option><option>Plain text export</option></select></div>
+    <div class="check-row"><input type="checkbox" checked> Deskew pages automatically</div>
+    <div class="check-row"><input type="checkbox" checked> Enhance scan quality</div>`},
+  sign:{title:'Sign PDF',sub:'Add your electronic signature',icon:'ti-signature',ico:'ico-purple',opts:`
+    <div class="form-row"><label class="form-label">Signature type</label><select class="form-select"><option>Draw signature</option><option>Type signature</option><option>Upload image</option><option>Digital certificate</option></select></div>
+    <div class="check-row"><input type="checkbox" checked> Add timestamp to signature</div>
+    <div class="check-row"><input type="checkbox"> Include initials field</div>`},
+  'wm-add':{title:'Add Watermark',sub:'Apply text or image watermark',icon:'ti-droplet',ico:'ico-teal',opts:`
+    <div class="form-row"><label class="form-label">Watermark type</label><select class="form-select"><option>Text watermark</option><option>Image watermark</option></select></div>
+    <div class="form-row"><label class="form-label">Watermark text</label><input class="form-input" placeholder="e.g. CONFIDENTIAL"></div>
+    <div class="form-row"><label class="form-label">Opacity (%)</label><input class="form-input" type="number" value="30" min="5" max="100"></div>
+    <div class="form-row"><label class="form-label">Position</label><select class="form-select"><option>Diagonal center</option><option>Top left</option><option>Center</option><option>Tile all pages</option></select></div>`},
+  'ai-chat':{title:'Chat with PDF',sub:'Ask questions about your document',icon:'ti-message-circle-2',ico:'ico-pink',opts:`
+    <div class="form-row"><label class="form-label">Your question</label><input class="form-input" placeholder="What is the main topic of this document?"></div>
+    <div class="form-row"><label class="form-label">Response format</label><select class="form-select"><option>Concise answer</option><option>Detailed explanation</option><option>Bullet points</option></select></div>`},
+  'ai-summary':{title:'AI Summary',sub:'Intelligent document summarization',icon:'ti-sparkles',ico:'ico-pink',opts:`
+    <div class="form-row"><label class="form-label">Summary length</label><select class="form-select"><option>Brief (1 paragraph)</option><option>Standard (3–5 paragraphs)</option><option>Detailed full breakdown</option></select></div>
+    <div class="check-row"><input type="checkbox" checked> Include key takeaways</div>
+    <div class="check-row"><input type="checkbox"> Include action items</div>
+    <div class="check-row"><input type="checkbox"> Include page references</div>`},
+  batch:{title:'Batch Processing',sub:'Process multiple files simultaneously',icon:'ti-stack',ico:'ico-purple',opts:`
+    <div class="form-row"><label class="form-label">Operation</label><select class="form-select"><option>Compress all PDFs</option><option>Convert all to PDF</option><option>OCR all scanned files</option><option>Watermark all</option><option>Password protect all</option></select></div>
+    <div class="form-row"><label class="form-label">Source folder</label><input class="form-input" placeholder="/Documents/batch-input/"></div>
+    <div class="check-row"><input type="checkbox" checked> Include subfolders</div>
+    <div class="check-row"><input type="checkbox" checked> Generate processing report</div>`},
+};
+
+const RECENT = [
+  {nm:'Q3_Financial_Report.pdf', op:'Compressed',    date:'Today, 10:24', sz:'2.1 MB', st:'done', fi:'ti-file-type-pdf', fc:'ico-red'},
+  {nm:'Contract_Draft_v3.docx',  op:'Word to PDF',   date:'Today, 09:11', sz:'540 KB', st:'done', fi:'ti-file-word',     fc:'ico-blue'},
+  {nm:'Invoice_PKF_Aug.pdf',     op:'OCR',           date:'Yesterday',    sz:'1.3 MB', st:'done', fi:'ti-file-type-pdf', fc:'ico-red'},
+  {nm:'Project_Proposal.pdf',    op:'eSignature',    date:'Yesterday',    sz:'3.7 MB', st:'proc', fi:'ti-file-type-pdf', fc:'ico-red'},
+  {nm:'Budget_2026.xlsx',        op:'Excel to PDF',  date:'May 29',       sz:'890 KB', st:'done', fi:'ti-file-spreadsheet',fc:'ico-green'},
+  {nm:'Site_Photos_Scans.pdf',   op:'OCR + Compress',date:'May 28',       sz:'12.4 MB',st:'err',  fi:'ti-file-type-pdf', fc:'ico-red'},
+];
+
+/* ─── RENDER ─── */
+function toolCard(t, delay) {
+  const b = t.badge === 'ai' ? `<span class="tc-badge tcb-ai">AI</span>` :
+            t.badge === 'new' ? `<span class="tc-badge tcb-new">NEW</span>` :
+            t.badge === 'pro' ? `<span class="tc-badge tcb-pro">PRO</span>` : '';
+  return `<div class="tool-card" style="animation-delay:${delay}s" onclick="openModal('tool-modal','${t.id}')">
+    <div class="tc-icon ${t.ico}"><i class="ti ${t.icon}"></i></div>
+    <div class="tc-name">${t.name}</div>
+    <div class="tc-desc">${t.desc}</div>
+    <i class="ti ti-arrow-up-right tc-arrow"></i>${b}</div>`;
+}
+
+function fileRow(f) {
+  const s = f.st==='done' ? `<span class="status-pill sp-done"><i class="ti ti-check" style="font-size:10px"></i> Done</span>`
+           : f.st==='proc' ? `<span class="status-pill sp-proc"><i class="ti ti-loader" style="font-size:10px"></i> Processing</span>`
+           : `<span class="status-pill sp-err"><i class="ti ti-alert-triangle" style="font-size:10px"></i> Error</span>`;
+  return `<tr>
+    <td><div class="f-name"><div class="f-icon ${f.fc}"><i class="ti ${f.fi}"></i></div><span class="f-nm">${f.nm}</span></div></td>
+    <td class="f-op">${f.op}</td><td class="f-date">${f.date}</td><td class="f-size">${f.sz}</td><td>${s}</td>
+    <td><div class="f-actions">
+      <div class="icon-btn" title="Download"><i class="ti ti-download"></i></div>
+      <div class="icon-btn" title="Open"><i class="ti ti-external-link"></i></div>
+      <div class="icon-btn" title="Delete"><i class="ti ti-trash"></i></div>
+    </div></td></tr>`;
+}
+
+function init() {
+  document.getElementById('quickGrid').innerHTML = TOOLS.filter(t=>t.quick).map((t,i)=>toolCard(t,i*0.04)).join('');
+  document.getElementById('allGrid').innerHTML = TOOLS.map((t,i)=>toolCard(t,i*0.02)).join('');
+  ['create','convert','edit','organize','compress','ocr','security','sign','collab','watermark','ai'].forEach(cat=>{
+    const el = document.getElementById(cat+'Grid');
+    if(el) el.innerHTML = TOOLS.filter(t=>t.cat===cat).map((t,i)=>toolCard(t,i*0.05)).join('');
+  });
+  const rows = RECENT.map(fileRow).join('');
+  document.getElementById('recentTbody').innerHTML = rows;
+  document.getElementById('allRecentTbody').innerHTML = rows;
+}
+
+/* ─── NAV ─── */
+const PANEL_LABELS = {dashboard:'Dashboard',all:'All Tools',create:'Create PDF',convert:'Convert PDF',
+  edit:'Edit PDF',organize:'Organize Pages',compress:'Compress & Repair',ocr:'OCR & Scanning',
+  security:'Security',sign:'eSign & Forms',collab:'Collaborate',watermark:'Watermark',
+  ai:'AI Features',recent:'Recent Files',cloud:'Cloud Storage',settings:'Settings'};
+
+function nav(el, id) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  const p = document.getElementById('panel-'+id);
+  if(p) p.classList.add('active');
+  document.getElementById('crumbCur').textContent = PANEL_LABELS[id]||id;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.getElementById('searchInput').value = '';
+}
+
+/* ─── SEARCH ─── */
+function searchTools(q) {
+  q = q.toLowerCase().trim();
+  if(!q) return;
+  const res = TOOLS.filter(t=>t.name.toLowerCase().includes(q)||t.desc.toLowerCase().includes(q)||t.cat.includes(q));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-all').classList.add('active');
+  document.getElementById('crumbCur').textContent = 'Search: '+q;
+  document.getElementById('allGrid').innerHTML = res.length
+    ? res.map((t,i)=>toolCard(t,i*0.03)).join('')
+    : `<div style="color:var(--text3);font-size:13px;padding:20px;grid-column:1/-1">No tools found for "${q}"</div>`;
+  document.getElementById('toolCountPill').textContent = res.length+' results';
+}
+
+/* ─── MODAL ─── */
+function openModal(mid, toolId) {
+  const m = document.getElementById(mid);
+  if(mid==='tool-modal' && toolId) {
+    const tool = TOOLS.find(t=>t.id===toolId);
+    const cfg = MODAL_CFG[toolId] || (tool ? {title:tool.name, sub:tool.desc, icon:tool.icon, ico:tool.ico, opts:''} : {});
+    document.getElementById('mTitle').textContent = cfg.title||'Process'; document.getElementById('mTitle').dataset = document.getElementById('mTitle').dataset || {}; document.getElementById('mTitle').dataset.toolId = toolId||'';
+    document.getElementById('mSub').textContent = cfg.sub||'Upload a file to begin';
+    document.getElementById('mIconI').className = 'ti '+(cfg.icon||'ti-file');
+    document.getElementById('mIcon').className = 'modal-hdr-icon '+(cfg.ico||'ico-orange');
+    document.getElementById('mOptions').innerHTML = cfg.opts||'';
+    document.getElementById('mProg').classList.remove('active');
+    document.getElementById('mSuccess').classList.remove('active');
+    const btn = document.getElementById('mActionBtn');
+    btn.style.display='inline-flex';
+    btn.innerHTML='<i class="ti ti-bolt" style="font-size:13px"></i> Process File';
+  }
+  m.classList.add('open');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function overlayClick(e,id) { if(e.target.id===id) closeModal(id); }
+
+/* ─── PROCESS SIMULATION ─── */
+let _pt;
+function startProcess() {
+  const prog = document.getElementById('mProg');
+  const bar  = document.getElementById('mProgBar');
+  const pct  = document.getElementById('mProgPct');
+  const lbl  = document.getElementById('mProgLbl');
+  const succ = document.getElementById('mSuccess');
+  const btn  = document.getElementById('mActionBtn');
+  const toolId = (document.getElementById('mTitle')||{}).dataset && document.getElementById('mTitle').dataset.toolId;
+
+  prog.classList.add('active');
+  succ.classList.remove('active');
+  btn.style.display = 'none';
+  lbl.textContent = 'Processing...';
+
+  // Simulation (no file uploaded)
+  let p=0; clearInterval(_pt);
+  _pt = setInterval(()=>{
+    p += Math.random()*14+5;
+    if(p>=100){ p=100; clearInterval(_pt);
+      setTimeout(()=>{ prog.classList.remove('active'); succ.classList.add('active');
+        btn.style.display='inline-flex';
+        btn.innerHTML='<i class="ti ti-download" style="font-size:13px"></i> Download Result';
+      },350);
+    }
+    bar.style.width=Math.min(p,100)+'%';
+    pct.textContent=Math.round(Math.min(p,100))+'%';
+  },200);
+}
+
+/* ─── API KEY MANAGEMENT ─── */
+let _selectedModel = 'gpt-4o';
+let _keyVisible = false;
+
+function openApiKeyModal() {
+  const stored = localStorage.getItem('docforge_openai_key') || '';
+  const model  = localStorage.getItem('docforge_openai_model') || 'gpt-4o';
+  const input  = document.getElementById('apikeyInput');
+  input.value  = stored;
+  input.type   = 'password';
+  _keyVisible  = false;
+  document.getElementById('visIcon').className = 'ti ti-eye';
+  _selectedModel = model;
+  document.querySelectorAll('.model-opt').forEach(o => o.classList.remove('selected'));
+  const sel = document.getElementById('model-'+model);
+  if(sel) sel.classList.add('selected');
+  syncModalStatus(stored);
+  document.getElementById('modelSelect').classList.toggle('show', stored.length > 10);
+  document.getElementById('apikey-overlay').classList.add('open');
+}
+
+function onApiKeyInput(val) {
+  const valid = val.startsWith('sk-') && val.length > 20;
+  const input = document.getElementById('apikeyInput');
+  input.classList.toggle('valid', valid && val.length > 0);
+  input.classList.remove('invalid');
+  document.getElementById('modelSelect').classList.toggle('show', valid);
+  document.getElementById('apiSaveBtn').disabled = !valid;
+  const v = document.getElementById('apikeyValidation');
+  if(val.length === 0) { v.classList.remove('show','ok','fail'); return; }
+  if(valid) {
+    v.classList.add('show','ok'); v.classList.remove('fail');
+    document.getElementById('apikeyValIcon').className = 'ti ti-check';
+    document.getElementById('apikeyValText').textContent = 'Valid key format — ready to save';
+  } else {
+    v.classList.add('show','fail'); v.classList.remove('ok');
+    document.getElementById('apikeyValIcon').className = 'ti ti-alert-triangle';
+    document.getElementById('apikeyValText').textContent = 'API keys start with "sk-" and are at least 20 characters';
+  }
+}
+
+function saveApiKey() {
+  const val = document.getElementById('apikeyInput').value.trim();
+  if(!val || !val.startsWith('sk-') || val.length < 20) return;
+  localStorage.setItem('docforge_openai_key', val);
+  localStorage.setItem('docforge_openai_model', _selectedModel);
+  closeModal('apikey-overlay');
+  updateSidebarIndicator();
+  showToast('ChatGPT API activated — AI features enabled', 'success', 'ti-sparkles');
+}
+
+function clearApiKey() {
+  document.getElementById('apikeyInput').value = '';
+  document.getElementById('apikeyInput').classList.remove('valid','invalid');
+  document.getElementById('apikeyValidation').classList.remove('show','ok','fail');
+  document.getElementById('modelSelect').classList.remove('show');
+  document.getElementById('apiSaveBtn').disabled = true;
+  syncModalStatus('');
+}
+
+function toggleKeyVisibility() {
+  _keyVisible = !_keyVisible;
+  document.getElementById('apikeyInput').type = _keyVisible ? 'text' : 'password';
+  document.getElementById('visIcon').className = _keyVisible ? 'ti ti-eye-off' : 'ti ti-eye';
+}
+
+function selectModel(el, modelId) {
+  document.querySelectorAll('.model-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  _selectedModel = modelId;
+}
+
+function syncModalStatus(key) {
+  const dot  = document.getElementById('apikeyDot');
+  const txt  = document.getElementById('apikeyStatusText');
+  const btn  = document.getElementById('apiSaveBtn');
+  if(key && key.startsWith('sk-') && key.length > 20) {
+    dot.className  = 'status-dot dot-set';
+    txt.textContent = 'API key configured · model: ' + (localStorage.getItem('docforge_openai_model')||'gpt-4o');
+    txt.style.color = 'var(--green)';
+    btn.disabled   = false;
+  } else {
+    dot.className  = 'status-dot dot-none';
+    txt.textContent = 'No API key configured — AI features are disabled';
+    txt.style.color = 'var(--text2)';
+    btn.disabled   = true;
+  }
+}
+
+function updateSidebarIndicator() {
+  const key = localStorage.getItem('docforge_openai_key') || '';
+  const hasKey = key.startsWith('sk-') && key.length > 20;
+  document.getElementById('apiIndicator').classList.toggle('hidden', !hasKey);
+  document.getElementById('apiIndicatorNone').classList.toggle('hidden', hasKey);
+}
+
+/* ─── TOAST ─── */
+let _toastTimer;
+function showToast(msg, type='info', icon='ti-check') {
+  const t = document.getElementById('toast');
+  const i = document.getElementById('toastIcon');
+  const m = document.getElementById('toastMsg');
+  t.className = 'toast t-'+type;
+  i.className = 'ti '+icon;
+  m.textContent = msg;
+  clearTimeout(_toastTimer);
+  // Force reflow so transition fires
+  void t.offsetWidth;
+  t.classList.add('show');
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+/* ─── KEYBOARD SHORTCUT Ctrl+Shift+A ─── */
+document.addEventListener('keydown', function(e) {
+  if(e.ctrlKey && e.shiftKey && e.key === 'A') {
+    e.preventDefault();
+    openApiKeyModal();
+  }
+});
+
+init();
+updateSidebarIndicator();
+checkApiConfig();
+</script>
+</body>
+</html>

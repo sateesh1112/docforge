@@ -1,0 +1,29 @@
+FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1
+
+# System tools for PDF processing
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ghostscript \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    tesseract-ocr-ara \
+    poppler-utils \
+    fonts-liberation \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# NOTE: LibreOffice omitted on free tier (too large ~700MB)
+# Word/Excel/PPT conversion will return 503 with upgrade message
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --upgrade pip && pip install -r requirements.txt
+
+COPY app/ ./app/
+RUN mkdir -p uploads outputs temp logs
+
+EXPOSE $PORT
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1
