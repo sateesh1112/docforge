@@ -1412,7 +1412,7 @@ function renderToolResult(toolId, result, succEl, btnEl) {
     btnEl.innerHTML = '<i class="ti ti-check" style="font-size:13px"></i> Done';
     btnEl.onclick = () => closeModal('tool-modal');
   } else {
-    const fileId = r?.file_id;
+    const fileId = r?.job_id || r?.file_id;
     document.querySelector('.success-ttl').textContent = 'Processing Complete';
     document.querySelector('.success-sub').textContent = 'Your file is ready to download';
     btnEl.style.display = 'inline-flex';

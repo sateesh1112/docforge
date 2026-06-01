@@ -92,4 +92,8 @@ h1{color:#e8500a}a{color:#e8500a}code{background:#f0ede8;padding:2px 8px;border-
 @app.exception_handler(Exception)
 async def global_exc(request: Request, exc: Exception):
     logger.error("Unhandled error %s %s: %s", request.method, request.url, exc, exc_info=True)
-    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error"},
+        headers={"Access-Control-Allow-Origin": "*"},
+    )
