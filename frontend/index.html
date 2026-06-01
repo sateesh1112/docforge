@@ -828,10 +828,15 @@ body { background:var(--off); color:var(--text); font-family:var(--font-body); m
       <button class="close-btn" onclick="closeModal('tool-modal')"><i class="ti ti-x"></i></button>
     </div>
     <div class="modal-body">
-      <div class="drop-zone" onclick="startProcess()">
-        <i class="ti ti-cloud-upload"></i>
-        <p>Drop file here or click to browse</p>
-        <small>PDF, DOCX, XLSX, PPTX, JPG, PNG · max 200 MB</small>
+      <input type="file" id="toolFileInput" style="display:none"
+        accept=".pdf,.docx,.xlsx,.pptx,.jpg,.jpeg,.png,.html,.txt"
+        onchange="onToolFileSelected(this.files)">
+      <div class="drop-zone" id="toolDropZone"
+        onclick="document.getElementById('toolFileInput').click()"
+        ondragover="toolDragOver(event)" ondragleave="toolDragLeave(event)" ondrop="toolDrop(event)">
+        <i class="ti ti-cloud-upload" id="toolDropIcon"></i>
+        <p id="toolDropText">Drop file here or click to browse</p>
+        <small id="toolDropSmall">PDF, DOCX, XLSX, PPTX, JPG, PNG · max 200 MB</small>
       </div>
       <div id="mOptions"></div>
       <div class="prog-wrap" id="mProg">
@@ -1287,51 +1292,173 @@ function openModal(mid, toolId) {
   if(mid==='tool-modal' && toolId) {
     const tool = TOOLS.find(t=>t.id===toolId);
     const cfg = MODAL_CFG[toolId] || (tool ? {title:tool.name, sub:tool.desc, icon:tool.icon, ico:tool.ico, opts:''} : {});
-    document.getElementById('mTitle').textContent = cfg.title||'Process'; document.getElementById('mTitle').dataset = document.getElementById('mTitle').dataset || {}; document.getElementById('mTitle').dataset.toolId = toolId||'';
+    document.getElementById('mTitle').textContent = cfg.title||'Process';
+    document.getElementById('mTitle').dataset.toolId = toolId||'';
     document.getElementById('mSub').textContent = cfg.sub||'Upload a file to begin';
     document.getElementById('mIconI').className = 'ti '+(cfg.icon||'ti-file');
     document.getElementById('mIcon').className = 'modal-hdr-icon '+(cfg.ico||'ico-orange');
     document.getElementById('mOptions').innerHTML = cfg.opts||'';
     document.getElementById('mProg').classList.remove('active');
     document.getElementById('mSuccess').classList.remove('active');
+    document.querySelector('.success-ttl').textContent = 'Processing Complete';
+    document.querySelector('.success-sub').textContent = 'Your file is ready to download';
     const btn = document.getElementById('mActionBtn');
     btn.style.display='inline-flex';
+    btn.onclick = startProcess;
     btn.innerHTML='<i class="ti ti-bolt" style="font-size:13px"></i> Process File';
+    // Reset file state
+    _toolFile = null;
+    document.getElementById('toolDropIcon').className = 'ti ti-cloud-upload';
+    document.getElementById('toolDropText').textContent = 'Drop file here or click to browse';
+    document.getElementById('toolDropSmall').textContent = 'PDF, DOCX, XLSX, PPTX, JPG, PNG · max 200 MB';
+    document.getElementById('toolFileInput').value = '';
   }
   m.classList.add('open');
 }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function overlayClick(e,id) { if(e.target.id===id) closeModal(id); }
 
-/* ─── PROCESS SIMULATION ─── */
-let _pt;
-function startProcess() {
+/* ─── TOOL MODAL FILE HANDLING ─── */
+let _toolFile = null;
+const AI_TOOLS = new Set(['ai-chat','ai-summary','ai-insights','ai-qa','ai-present','ai-podcast']);
+
+function onToolFileSelected(files) {
+  if (!files.length) return;
+  _toolFile = files[0];
+  document.getElementById('toolDropIcon').className = 'ti ti-file-check';
+  document.getElementById('toolDropText').textContent = _toolFile.name;
+  document.getElementById('toolDropSmall').textContent = (_toolFile.size/1024/1024).toFixed(1)+' MB · click to change';
+}
+
+function toolDragOver(e) {
+  e.preventDefault();
+  document.getElementById('toolDropZone').style.borderColor = 'var(--accent)';
+  document.getElementById('toolDropZone').style.background  = 'var(--accent-light)';
+}
+
+function toolDragLeave(e) {
+  document.getElementById('toolDropZone').style.borderColor = '';
+  document.getElementById('toolDropZone').style.background  = '';
+}
+
+function toolDrop(e) {
+  e.preventDefault(); toolDragLeave(e);
+  if (e.dataTransfer.files.length) onToolFileSelected(e.dataTransfer.files);
+}
+
+function buildToolOptions(toolId) {
+  const opts = {};
+  const sel  = Array.from(document.querySelectorAll('#mOptions select'));
+  const inp  = Array.from(document.querySelectorAll('#mOptions input:not([type=checkbox])'));
+  const cbs  = Array.from(document.querySelectorAll('#mOptions input[type=checkbox]'));
+  if (toolId === 'ai-chat') {
+    opts.question = inp[0]?.value || 'What is this document about?';
+    opts.format   = ['concise','detailed','bullets'][sel[0]?.selectedIndex||0] || 'concise';
+  } else if (toolId === 'ai-summary') {
+    opts.length        = ['brief','standard','detailed'][sel[0]?.selectedIndex||1] || 'standard';
+    opts.key_takeaways = cbs[0]?.checked ?? true;
+    opts.action_items  = cbs[1]?.checked ?? false;
+  } else if (toolId === 'compress') {
+    opts.level           = ['high_quality','balanced','maximum'][sel[0]?.selectedIndex||1] || 'balanced';
+    opts.compress_images = cbs[0]?.checked ?? true;
+    opts.remove_metadata = cbs[1]?.checked ?? false;
+    opts.subset_fonts    = cbs[2]?.checked ?? false;
+  } else if (toolId === 'protect') {
+    opts.open_password  = inp[0]?.value || null;
+    opts.owner_password = inp[1]?.value || null;
+    opts.prevent_print  = cbs[0]?.checked ?? false;
+    opts.prevent_copy   = cbs[1]?.checked ?? false;
+    opts.prevent_edit   = cbs[2]?.checked ?? false;
+  } else if (toolId === 'wm-add') {
+    opts.text     = inp[0]?.value || 'CONFIDENTIAL';
+    opts.opacity  = (parseFloat(inp[1]?.value)||30) / 100;
+    opts.position = ['diagonal','top_left','center','tile'][sel[1]?.selectedIndex||0] || 'diagonal';
+  } else if (toolId === 'ocr' || toolId === 'ocr-search') {
+    opts.language    = ['eng','ara','fra','deu','spa','chi_sim','auto'][sel[0]?.selectedIndex||0] || 'eng';
+    opts.output_mode = ['searchable_pdf','text'][sel[1]?.selectedIndex||0] || 'searchable_pdf';
+    opts.deskew      = cbs[0]?.checked ?? true;
+    opts.enhance     = cbs[1]?.checked ?? true;
+  }
+  return opts;
+}
+
+function renderToolResult(toolId, result, succEl, btnEl) {
+  const r = result.result || {};
+  succEl.classList.add('active');
+  if (AI_TOOLS.has(toolId)) {
+    let html = '';
+    if (toolId === 'ai-chat') {
+      html = `<div style="text-align:left;margin-top:8px;padding:12px;background:var(--off);border-radius:var(--r2);font-size:13px;line-height:1.6">${(r.answer||'').replace(/\n/g,'<br>')}</div>`;
+    } else if (toolId === 'ai-summary') {
+      const kts = r.key_takeaways?.length ? '<ul style="text-align:left;font-size:12px;color:var(--text2);padding-left:18px;margin-top:8px">'+r.key_takeaways.map(t=>`<li style="margin-bottom:3px">${t}</li>`).join('')+'</ul>' : '';
+      html = `<div style="text-align:left;font-size:13px;line-height:1.6;margin-top:8px">${(r.summary||'').replace(/\n/g,'<br>')}${kts}</div>`;
+    } else if (toolId === 'ai-insights') {
+      html = `<div style="text-align:left;font-size:12px;line-height:2;margin-top:8px">
+        <b>Type:</b> ${r.document_type||'–'} &nbsp;·&nbsp; <b>Language:</b> ${r.language||'–'} &nbsp;·&nbsp; <b>Read time:</b> ${r.reading_time_minutes||'–'} min<br>
+        <b>Words:</b> ${(r.word_count||0).toLocaleString()} &nbsp;·&nbsp; <b>Sentiment:</b> ${r.sentiment||'–'} &nbsp;·&nbsp; <b>Complexity:</b> ${r.complexity||'–'}<br>
+        ${r.topics?.length ? '<b>Topics:</b> '+r.topics.join(', ') : ''}
+      </div>`;
+    } else if (toolId === 'ai-qa') {
+      html = (r.qa||[]).slice(0,5).map(q=>`<div style="text-align:left;margin-top:8px;font-size:12px;padding:8px;background:var(--off);border-radius:var(--r)"><b>${q.question}</b><br><span style="color:var(--text2)">${q.answer}</span></div>`).join('');
+    } else if (toolId === 'ai-present') {
+      const slides = r.slides||[];
+      html = `<div style="text-align:left;font-size:13px;margin-top:8px"><b>${r.title||'Presentation'}</b><br><span style="color:var(--text3);font-size:12px">${slides.length} slides generated</span><ul style="font-size:12px;color:var(--text2);padding-left:18px;margin-top:6px">${slides.slice(0,4).map(s=>`<li>${s.title}</li>`).join('')}${slides.length>4?'<li style="color:var(--text3)">…</li>':''}</ul></div>`;
+    } else if (toolId === 'ai-podcast') {
+      html = `<div style="text-align:left;font-size:13px;margin-top:8px"><b>${r.title||'Podcast Script'}</b> &nbsp;·&nbsp; <span style="color:var(--text3)">${r.duration_estimate||''}</span><br><span style="color:var(--text2);font-size:12px">${(r.script||[]).length} lines generated</span></div>`;
+    }
+    document.querySelector('.success-ttl').textContent = 'AI Processing Complete';
+    document.querySelector('.success-sub').innerHTML = html || 'Done';
+    btnEl.style.display = 'inline-flex';
+    btnEl.innerHTML = '<i class="ti ti-check" style="font-size:13px"></i> Done';
+    btnEl.onclick = () => closeModal('tool-modal');
+  } else {
+    const fileId = r?.file_id;
+    document.querySelector('.success-ttl').textContent = 'Processing Complete';
+    document.querySelector('.success-sub').textContent = 'Your file is ready to download';
+    btnEl.style.display = 'inline-flex';
+    if (fileId) {
+      btnEl.innerHTML = '<i class="ti ti-download" style="font-size:13px"></i> Download Result';
+      btnEl.onclick = () => window.open(API_BASE+'/api/v1/files/'+fileId+'/download');
+    } else {
+      btnEl.innerHTML = '<i class="ti ti-check" style="font-size:13px"></i> Done';
+      btnEl.onclick = () => closeModal('tool-modal');
+    }
+  }
+}
+
+async function startProcess() {
+  if (!_toolFile) { document.getElementById('toolFileInput').click(); return; }
+  const toolId = document.getElementById('mTitle').dataset.toolId || '';
+  if (!API_BASE) { showToast('Connect a backend URL first','error','ti-alert-triangle'); return; }
+
   const prog = document.getElementById('mProg');
   const bar  = document.getElementById('mProgBar');
   const pct  = document.getElementById('mProgPct');
   const lbl  = document.getElementById('mProgLbl');
   const succ = document.getElementById('mSuccess');
   const btn  = document.getElementById('mActionBtn');
-  const toolId = (document.getElementById('mTitle')||{}).dataset && document.getElementById('mTitle').dataset.toolId;
 
-  prog.classList.add('active');
-  succ.classList.remove('active');
+  prog.classList.add('active'); succ.classList.remove('active');
   btn.style.display = 'none';
-  lbl.textContent = 'Processing...';
+  lbl.textContent = 'Uploading…'; bar.style.width = '20%'; pct.textContent = '20%';
 
-  // Simulation (no file uploaded)
-  let p=0; clearInterval(_pt);
-  _pt = setInterval(()=>{
-    p += Math.random()*14+5;
-    if(p>=100){ p=100; clearInterval(_pt);
-      setTimeout(()=>{ prog.classList.remove('active'); succ.classList.add('active');
-        btn.style.display='inline-flex';
-        btn.innerHTML='<i class="ti ti-download" style="font-size:13px"></i> Download Result';
-      },350);
+  try {
+    const options = buildToolOptions(toolId);
+    if (AI_TOOLS.has(toolId)) {
+      const key = localStorage.getItem('docforge_openai_key') || '';
+      if (key) options.openai_key = key;
     }
-    bar.style.width=Math.min(p,100)+'%';
-    pct.textContent=Math.round(Math.min(p,100))+'%';
-  },200);
+    lbl.textContent = 'Processing…'; bar.style.width = '55%'; pct.textContent = '55%';
+    const result = await uploadAndProcess(toolId, _toolFile, options);
+    bar.style.width = '100%'; pct.textContent = '100%';
+    setTimeout(() => { prog.classList.remove('active'); renderToolResult(toolId, result, succ, btn); }, 300);
+  } catch(err) {
+    prog.classList.remove('active');
+    btn.style.display = 'inline-flex';
+    btn.innerHTML = '<i class="ti ti-bolt" style="font-size:13px"></i> Retry';
+    btn.onclick = startProcess;
+    showToast(err.message, 'error', 'ti-alert-triangle');
+  }
 }
 
 /* ─── API KEY MANAGEMENT ─── */

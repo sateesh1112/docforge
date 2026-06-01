@@ -205,9 +205,10 @@ class SignRequest(BaseModel):
 
 
 class AiChatRequest(BaseModel):
-    file_id:  str
-    question: str
-    format:   str = "concise"   # concise | detailed | bullets
+    file_id:    str
+    question:   str
+    format:     str = "concise"   # concise | detailed | bullets
+    openai_key: Optional[str] = None
 
 
 class AiSummaryRequest(BaseModel):
@@ -215,10 +216,31 @@ class AiSummaryRequest(BaseModel):
     length:        AiSummaryLength = AiSummaryLength.STANDARD
     key_takeaways: bool = True
     action_items:  bool = False
+    openai_key:    Optional[str] = None
 
 
 class AiInsightsRequest(BaseModel):
-    file_id: str
+    file_id:    str
+    openai_key: Optional[str] = None
+
+
+class AiQaRequest(BaseModel):
+    file_id:       str
+    num_questions: int = 5
+    openai_key:    Optional[str] = None
+
+
+class AiPresentationRequest(BaseModel):
+    file_id:    str
+    num_slides: int = 10
+    openai_key: Optional[str] = None
+
+
+class AiPodcastRequest(BaseModel):
+    file_id:          str
+    style:            str = "conversational"
+    duration_minutes: int = 5
+    openai_key:       Optional[str] = None
 
 
 class ConvertRequest(BaseModel):
