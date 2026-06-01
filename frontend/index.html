@@ -1006,9 +1006,9 @@ body { background:var(--off); color:var(--text); font-family:var(--font-body); m
 let API_BASE = (() => {
   const stored = localStorage.getItem('docforge_api_url');
   if (stored) return stored.replace(/\/$/, '');
-  /* deploy.yml replaces '__BACKEND__' with RENDER_BACKEND_URL secret */
+  /* deploy.yml sed replaces the value below with RENDER_BACKEND_URL */
   const ci = '__BACKEND__';
-  if (ci && ci !== '__BACKEND__') return ci;
+  if (ci.indexOf('__') !== 0) return ci;
   if (location.hostname.includes('github.io')) return '';
   return 'http://localhost:8000';
 })();
