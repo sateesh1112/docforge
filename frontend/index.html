@@ -976,6 +976,19 @@ body { background:var(--off); color:var(--text); font-family:var(--font-body); m
         <small id="uploadDropSmall">PDF, DOCX, XLSX, PPTX, JPG, PNG, HTML · 200 MB max</small>
       </div>
       <div id="uploadFileList" style="margin-bottom:14px;display:none"></div>
+      <!-- Shown when no backend URL is configured -->
+      <div id="uploadBackendConfig" style="display:none;margin-bottom:14px;padding:14px 16px;background:var(--amber-light);border:1px solid #fcd34d;border-radius:var(--r2)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <i class="ti ti-alert-triangle" style="color:var(--amber);font-size:16px"></i>
+          <span style="font-size:13px;font-weight:600;color:var(--text)">Backend URL Required</span>
+        </div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.5">Connect your DocForge backend (deployed on Render, Railway, etc.) to enable file uploads and processing.</p>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="uploadBackendUrlInput" class="form-input" placeholder="https://docforge-api.onrender.com" style="flex:1;font-size:12px"
+            onkeydown="if(event.key==='Enter')saveBackendUrlAndUpload()">
+          <button class="btn btn-accent btn-sm" onclick="saveBackendUrlAndUpload()">Connect</button>
+        </div>
+      </div>
       <div class="form-row"><label class="form-label">Save to folder</label><select class="form-select"><option>Root</option><option>Projects</option><option>Archive</option><option>Shared</option></select></div>
       <div class="check-row"><input type="checkbox" checked> Run OCR automatically on scanned files</div>
       <div class="check-row"><input type="checkbox"> Compress after upload</div>
@@ -990,9 +1003,12 @@ body { background:var(--off); color:var(--text); font-family:var(--font-body); m
 <script>
 
 /* ─── REAL API INTEGRATION ──────────────────────────────────────────── */
-const API_BASE = (() => {
-  const s = localStorage.getItem('docforge_api_url');
-  if (s) return s.replace(/\/$/, '');
+let API_BASE = (() => {
+  const stored = localStorage.getItem('docforge_api_url');
+  if (stored) return stored.replace(/\/$/, '');
+  /* deploy.yml replaces '__BACKEND__' with RENDER_BACKEND_URL secret */
+  const ci = '__BACKEND__';
+  if (ci && ci !== '__BACKEND__') return ci;
   if (location.hostname.includes('github.io')) return '';
   return 'http://localhost:8000';
 })();
@@ -1013,6 +1029,28 @@ function checkApiConfig() {
 function saveApiUrl() {
   const url = (document.getElementById('apiUrlInput').value||'').trim().replace(/\/$/, '');
   if (url) { localStorage.setItem('docforge_api_url', url); location.reload(); }
+}
+
+function saveBackendUrl(url) {
+  url = (url || '').trim().replace(/\/$/, '');
+  if (!url) return false;
+  try { new URL(url); } catch(_) { return false; }
+  localStorage.setItem('docforge_api_url', url);
+  API_BASE = url;
+  const banner = document.getElementById('api-banner');
+  if (banner) banner.remove();
+  return true;
+}
+
+function saveBackendUrlAndUpload() {
+  const url = (document.getElementById('uploadBackendUrlInput').value || '').trim();
+  if (!saveBackendUrl(url)) {
+    showToast('Enter a valid URL (e.g. https://your-api.onrender.com)', 'error', 'ti-alert-triangle');
+    return;
+  }
+  document.getElementById('uploadBackendConfig').style.display = 'none';
+  checkHealth();
+  doUpload();
 }
 
 async function checkHealth() {
@@ -1465,9 +1503,12 @@ function doUpload() {
     return;
   }
   if (!API_BASE) {
-    showToast('Connect a backend URL first to upload files', 'error', 'ti-alert-triangle');
+    document.getElementById('uploadBackendConfig').style.display = 'block';
+    document.getElementById('uploadBackendUrlInput').focus();
+    showToast('Enter your backend URL below to upload files', 'info', 'ti-info-circle');
     return;
   }
+  document.getElementById('uploadBackendConfig').style.display = 'none';
   const btn = document.getElementById('uploadBtn');
   btn.disabled = true;
   btn.innerHTML = '<i class="ti ti-loader" style="font-size:14px"></i> Uploading…';

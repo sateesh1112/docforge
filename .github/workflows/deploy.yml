@@ -33,9 +33,9 @@ jobs:
           BACKEND_URL="${{ secrets.RENDER_BACKEND_URL }}"
           if [ -n "$BACKEND_URL" ]; then
             echo "Injecting backend URL: $BACKEND_URL"
-            sed -i "s|localStorage.getItem('docforge_api_url') || '';|'$BACKEND_URL';|g" frontend/index.html
+            sed -i "s|'__BACKEND__'|'$BACKEND_URL'|g" frontend/index.html
           else
-            echo "No RENDER_BACKEND_URL secret set — users will configure manually"
+            echo "No RENDER_BACKEND_URL secret set — users will configure manually via the upload modal"
           fi
 
       - name: Upload Pages artifact
